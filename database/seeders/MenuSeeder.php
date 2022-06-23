@@ -2,11 +2,43 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Menu;
+use Faker\Generator;
 use Illuminate\Database\Seeder;
+use Illuminate\Container\Container;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 class MenuSeeder extends Seeder
 {
+    /**
+     * The current Faker instance.
+     *
+     * @var \Faker\Generator
+     */
+    protected $faker;
+
+    /**
+     * Create a new seeder instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        $this->faker = $this->withFaker();
+    }
+
+    /**
+     * Get a new Faker instance.
+     *
+     * @return \Faker\Generator
+     */
+    protected function withFaker()
+    {
+        return Container::getInstance()->make(Generator::class);
+    }
+
+
     /**
      * Run the database seeds.
      *
@@ -14,6 +46,14 @@ class MenuSeeder extends Seeder
      */
     public function run()
     {
-        //
+        $json = Storage::disk('local')->get('/json/menu.json');
+        $menus = json_decode($json, true);
+        foreach ($menus as $menu) {
+            $menu = Menu::create([
+                'title' => $this->faker->words(8, true),
+                'price' => $this->faker->randomElement([1000, 1500, 2000, 2500]),
+                'image' => $menu['image']
+            ]);
+        }
     }
 }
