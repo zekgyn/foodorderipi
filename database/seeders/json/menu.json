@@ -1,0 +1,38 @@
+[
+    {
+        "image": "https://foodish-api.herokuapp.com/images/dessert/dessert24.jpg"
+    },
+    {
+        "image": "https://foodish-api.herokuapp.com/images/burger/burger55.jpg"
+    },
+    {
+        "image": "https://foodish-api.herokuapp.com/images/burger/burger75.jpg"
+    },
+    {
+        "image": "https://foodish-api.herokuapp.com/images/samosa/samosa18.jpg"
+    },
+    {
+        "image": "https://foodish-api.herokuapp.com/images/rice/rice34.jpg"
+    },
+    {
+        "image": "https://foodish-api.herokuapp.com/images/pasta/pasta21.jpg"
+    },
+    {
+        "image": "https://foodish-api.herokuapp.com/images/idly/idly38.jpg"
+    },
+    {
+        "image": "https://foodish-api.herokuapp.com/images/butter-chicken/butter-chicken4.jpg"
+    },
+    {
+        "image": "https://foodish-api.herokuapp.com/images/butter-chicken/butter-chicken20.jpg"
+    },
+    {
+        "image": "https://foodish-api.herokuapp.com/images/burger/burger74.jpg"
+    },
+    {
+        "image": "https://foodish-api.herokuapp.com/images/dosa/dosa46.jpg"
+    },
+    {
+        "image": "https://foodish-api.herokuapp.com/images/burger/burger18.jpg"
+    }
+]

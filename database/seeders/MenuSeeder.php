@@ -46,7 +46,8 @@ class MenuSeeder extends Seeder
      */
     public function run()
     {
-        $json = Storage::disk('local')->get('/json/menu.json');
+        // $json = Storage::disk('local')->get('/json/menu.json');
+        $json = file_get_contents(base_path("/database/seeders/json/menu.json"));
         $menus = json_decode($json, true);
         foreach ($menus as $menu) {
             $menu = Menu::create([
