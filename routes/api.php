@@ -17,7 +17,9 @@ use App\Http\Controllers\OrderController;
 */
 
 Route::get('menu', [MenuController::class, 'index']);
-Route::post('/order', [OrderController::class, 'store']);
+Route::get('orders', [OrderController::class, 'index']);
+
+Route::post('order', [OrderController::class, 'store']);
 // Route::apiResource();
 // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 //     return $request->user();
