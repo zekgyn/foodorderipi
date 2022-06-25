@@ -16,7 +16,8 @@ class MenuController extends Controller
     public function index()
     {
         $menu = Menu::select('id', 'title', 'image')->paginate(5);
-        return $menu;
+
+        return response()->json(['data' => $menu]);
     }
 
     /**
