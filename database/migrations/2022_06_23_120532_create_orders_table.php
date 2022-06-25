@@ -15,6 +15,9 @@ return new class extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
+            $table->foreignid('menu_id')->constrained('menus', 'id')->cascadeOnDelete();
+            $table->string('phone');
+            $table->string('location');
             $table->timestamps();
         });
     }
