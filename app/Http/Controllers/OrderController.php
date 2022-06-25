@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Order;
+use Illuminate\Support\Facades\DB;
 use App\Http\Requests\StoreOrderRequest;
 use App\Http\Requests\UpdateOrderRequest;
-use App\Models\Order;
 
 class OrderController extends Controller
 {
@@ -36,7 +37,32 @@ class OrderController extends Controller
      */
     public function store(StoreOrderRequest $request)
     {
-        //
+        $validdata = $request->validated();
+
+        //save new order to database
+        // if ($validdata['menu_id']=) {
+        // }
+        DB::transaction(function () use ($validdata) {
+            Order::create([
+                'menu_id' => $validdata['menu_id'],
+                'phone' => $validdata['phone'],
+                'location' => $validdata['location']
+            ]);
+        });
+        //retrieve created order to return as response
+        // $order = Order::all()->where('phone', '=', $validdata['phone']);
+
+        // return response to client
+        return response()->json([
+            'response' =>
+            [
+                'order' => 'Your order has been created you will receive an sms for confirmation.',
+                // 'menu_id' => $validdata['menu_id'],
+                // 'phone' => $validdata['phone'],
+                // 'location' => $validdata['location'],
+
+            ]
+        ]);
     }
 
     /**
