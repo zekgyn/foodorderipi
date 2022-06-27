@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Menu;
+use App\Jobs\SendSms;
 use App\Models\Order;
 use Illuminate\Support\Facades\DB;
 use App\Http\Requests\StoreOrderRequest;
@@ -50,14 +52,25 @@ class OrderController extends Controller
             ]);
         });
         //retrieve created order to return as response
-        // $order = Order::all()->where('phone', '=', $validdata['phone']);
+        $menu = Menu::where('id', $validdata['menu_id'])->get('title')->first();
+        // $menu = Menu::all()->where('id', '=', $validdata['menu_id'])->only('title');
+
+
+        // send sms to restaurant and buyer
+        $textrestaurant = "order of:{$menu} has been made by {$validdata['phone']}.";
+        SendSms::dispatch($textrestaurant, "255620170041");
+
+        // Send code to user mobile
+        $textbuyer = "{$menu} is your selected food for today.";
+        SendSms::dispatch($textbuyer, $validdata['phone']);
+
 
         // return response to client
         return response()->json([
             'response' =>
             [
                 'order' => 'Your order has been created you will receive an sms for confirmation.',
-                // 'menu_id' => $validdata['menu_id'],
+                // 'menu' => $menu,
                 // 'phone' => $validdata['phone'],
                 // 'location' => $validdata['location'],
 
