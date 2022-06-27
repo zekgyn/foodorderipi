@@ -31,4 +31,11 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'sms' => [
+        'base_uri' => env('FASTHUB_SMS_BASE_URL', 'https://secure-gw.fasthub.co.tz'),
+        'channel' => env('FASTHUB_SMS_CHANNEL', '118274'),
+        'source' => env('FASTHUB_SMS_SOURCE'),
+        'password' => env('FASTHUB_SMS_PASSWORD')
+    ],
+
 ];
