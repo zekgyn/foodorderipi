@@ -55,7 +55,7 @@ class OrderController extends Controller
         $menu = Menu::select('title')->where('id', $validdata['menu_id'])->first();
 
         // send sms to restaurant and buyer
-        $textrestaurant = "order of: {$menu} has been made by {$validdata['phone']}.";
+        $textrestaurant = "order of: {$menu} has been made by {$validdata['phone']}. from: {$validdata['location']}";
         SendSms::dispatch($textrestaurant, 255620170041);
 
         // Send code to user mobile
