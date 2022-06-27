@@ -51,17 +51,15 @@ class OrderController extends Controller
                 'location' => $validdata['location']
             ]);
         });
-        //retrieve created order to return as response
-        $menu = Menu::where('id', $validdata['menu_id'])->get('title')->first();
-        // $menu = Menu::all()->where('id', '=', $validdata['menu_id'])->only('title');
-
+        //retrieve created order
+        $menu = Menu::select('title')->where('id', $validdata['menu_id'])->first();
 
         // send sms to restaurant and buyer
-        $textrestaurant = "order of:{$menu} has been made by {$validdata['phone']}.";
-        SendSms::dispatch($textrestaurant, "255620170041");
+        $textrestaurant = "order of: {$menu} has been made by {$validdata['phone']}.";
+        SendSms::dispatch($textrestaurant, 255620170041);
 
         // Send code to user mobile
-        $textbuyer = "{$menu} is your selected food for today.";
+        $textbuyer = "{$menu['title']} is your selected food for today.";
         SendSms::dispatch($textbuyer, $validdata['phone']);
 
 
@@ -69,10 +67,9 @@ class OrderController extends Controller
         return response()->json([
             'response' =>
             [
-                'order' => 'Your order has been created you will receive an sms for confirmation.',
-                // 'menu' => $menu,
-                // 'phone' => $validdata['phone'],
-                // 'location' => $validdata['location'],
+                'order' => 'Order of: ' . $menu['title'] . ' has been made',
+                'message' => 'You will receive an sms for confirmation.',
+
 
             ]
         ]);
