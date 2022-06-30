@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Menu;
+use Illuminate\Support\Facades\DB;
 use App\Http\Requests\StoreMenuRequest;
 use App\Http\Requests\UpdateMenuRequest;
 
@@ -15,7 +16,7 @@ class MenuController extends Controller
      */
     public function index()
     {
-        $menu = Menu::select('id', 'title', 'image')->paginate(5);
+        $menu = Menu::select('id', 'title', 'image')->paginate(15);
 
         return response()->json(['data' => $menu]);
     }
@@ -38,7 +39,23 @@ class MenuController extends Controller
      */
     public function store(StoreMenuRequest $request)
     {
-        //
+
+        $validdata = $request->validated();
+
+        //save new menu to database
+        // create product
+        $product = Menu::create([
+            'title' => strtolower($validdata['title']),
+            // 'image' => $imageService->save($validdata['image'], $imageDir),
+            'image' => $validdata['image'],
+
+            'price' => $validdata['price'],
+        ]);
+
+        // return response to client
+        return response()->json([
+            'response' => ['menu' => $validdata['title'] . ' has been added to menu']
+        ]);
     }
 
     /**
