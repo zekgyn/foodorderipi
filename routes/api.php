@@ -16,10 +16,28 @@ use App\Http\Controllers\OrderController;
 |
 */
 
+//menus
 Route::get('menu', [MenuController::class, 'index']);
-Route::get('orders', [OrderController::class, 'index']);
+Route::post('menu', [MenuController::class, 'store']);
 
+//create orders
 Route::post('order', [OrderController::class, 'store']);
+
+// update order
+Route::put('order_update/{order}', [OrderController::class, 'update']);
+
+//open orders
+Route::get('open_orders', [OrderController::class, 'index']);
+Route::get('open_order/{order}', [OrderController::class, 'show']);
+
+// send order
+Route::post('send_order', [OrderController::class, 'send']);
+
+
+//closed orders
+Route::get('closed_orders', [OrderController::class, 'indexClosed']);
+Route::get('closed_order/{order}', [OrderController::class, 'closedShow']);
+
 // Route::apiResource();
 // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 //     return $request->user();
