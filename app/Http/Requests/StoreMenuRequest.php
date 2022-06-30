@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Menu;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreMenuRequest extends FormRequest
@@ -13,7 +14,7 @@ class StoreMenuRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -24,7 +25,19 @@ class StoreMenuRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'title' => [
+                'required', 'string',
+                function ($attribute, $value, $fail) {
+                    if (Menu::where([
+                        ['title', '=', strtolower($value)]
+                    ])->exists()) {
+                        return $fail("{$attribute} already exists");
+                    }
+                }
+            ],
+            'price' => 'required|regex:/^\d{1,16}+(\.\d{1,2})?$/',
+            'image' => 'present|nullable',
+
         ];
     }
 }
