@@ -26,17 +26,16 @@ class StoreOrderRequest extends FormRequest
     public function rules()
     {
         return [
-            'menu_id' => ['required', function ($attribute, $value, $fail) {
-                $menuid = request()->menu_id;
+            'menus' => 'bail|required|array',
+            'menus.*.menu_id' => ['required', function ($attribute, $value, $fail) {
+                // $menuid = request()->menu_id;
                 if (!Menu::where([
-                    // ['title', '=', $value],
-                    ['id', '=', $menuid]
+                    ['id', '=', $value]
                 ])->exists()) {
                     return $fail("{$attribute} does not exist in the menu");
                 }
             }],
-            'phone' => 'bail|required|string',
-            'location' => 'bail|required|string',
+            'menus.*.name' => 'bail|required|string',
 
         ];
     }
