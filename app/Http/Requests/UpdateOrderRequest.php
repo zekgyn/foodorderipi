@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Menu;
+use App\Models\Order;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateOrderRequest extends FormRequest
@@ -13,7 +15,7 @@ class UpdateOrderRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -24,7 +26,15 @@ class UpdateOrderRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'menus' => 'bail|required|array',
+            'menus.*.menu_id' => ['required',  function ($attribute, $value, $fail) {
+                if (!Menu::where([
+                    ['id', '=', $value]
+                ])->exists()) {
+                    return $fail("{$attribute} does not exist in the menu");
+                }
+            }],
+            'menus.*.name' => 'bail|required|string',
         ];
     }
 }
