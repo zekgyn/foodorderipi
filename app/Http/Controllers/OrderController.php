@@ -6,8 +6,11 @@ use App\Models\Menu;
 use App\Jobs\SendSms;
 use App\Models\Order;
 use Illuminate\Support\Facades\DB;
+use App\Http\Requests\SendOrderRequest;
+use Illuminate\Validation\Rules\Exists;
 use App\Http\Requests\StoreOrderRequest;
 use App\Http\Requests\UpdateOrderRequest;
+use Illuminate\Auth\Events\Validated;
 
 class OrderController extends Controller
 {
@@ -18,9 +21,20 @@ class OrderController extends Controller
      */
     public function index()
     {
-        //
-    }
+        $orders = Order::where([
+            'is_placed' => false
+        ])->paginate(10);
 
+        return $orders;
+    }
+    public function indexClosed()
+    {
+        $orders = Order::where([
+            'is_placed' => true
+        ])->paginate(10);
+
+        return $orders;
+    }
     /**
      * Show the form for creating a new resource.
      *
@@ -39,39 +53,76 @@ class OrderController extends Controller
      */
     public function store(StoreOrderRequest $request)
     {
-        $validdata = $request->validated();
+        $validated = $request->validated();
+
+        DB::transaction(function () use ($validated) {
+
+            $order = Order::create([
+                'is_placed' => false
+            ]);
+            //Loop menu items and insert into the database
+            foreach ($validated['menus'] as $menuitem) {
+
+                $menu = Menu::select('id', 'price', 'image', 'title')
+                    ->where('id', $menuitem['menu_id'])
+                    ->first();
+                // Create order items for new order
+                $order->orderItems()->create([
+                    'title' => $menu['title'],
+                    'name' => $menuitem['name'],
+                    'image' => $menu['image'],
+                    'price' => $menu['price']
+                ]);
+            }
+        });
+        // return response to client
+        return response()->json([
+            'response' => ['order' => 'Order created successfully']
+        ]);
+    }
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \App\Http\Requests\StoreOrderRequest  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function send(SendOrderRequest $request)
+    {
+        $validated = $request->validated();
 
         //save new order to database
-        // if ($validdata['menu_id']=) {
-        // }
-        DB::transaction(function () use ($validdata) {
-            Order::create([
-                'menu_id' => $validdata['menu_id'],
-                'phone' => $validdata['phone'],
-                'location' => $validdata['location']
-            ]);
+
+        $send = DB::transaction(function () use ($validated) {
+
+            $order = Order::find($validated['order_id']);
+            $order->is_placed = true;
+            $order->save();
         });
         //retrieve created order
-        $menu = Menu::select('title')->where('id', $validdata['menu_id'])->first();
+        if (Order::where([
+            'id' => $validated['order_id'],
+            'is_placed' => true
+        ])->first()) {
+            // retrieve order info
+            $order = Order::where([
+                'id' => $validated['order_id'],
+                'is_placed' => true
+            ])->first();
+            // send sms to restaurant and buyer
+            $textrestaurant = "Order# {$order['order_number']}";
+            // SendSms::dispatch($textrestaurant, 255620170041);
 
-        // send sms to restaurant and buyer
-        $textrestaurant = "order of: {$menu['title']} has been made by {$validdata['phone']}. from: {$validdata['location']}";
-        SendSms::dispatch($textrestaurant, 255620170041);
+            // // Send code to user mobile
+            // $textbuyer = "{$menu['title']} is your selected food for today.";
+            // SendSms::dispatch($textbuyer, $validated['phone']);
+        }
 
-        // Send code to user mobile
-        $textbuyer = "{$menu['title']} is your selected food for today.";
-        SendSms::dispatch($textbuyer, $validdata['phone']);
+
 
 
         // return response to client
         return response()->json([
-            'response' =>
-            [
-                'order' => 'Order of: ' . $menu['title'] . ' has been made',
-                'message' => 'You will receive an sms for confirmation.',
-
-
-            ]
+            'response' => ['order' => 'Order sent successfully']
         ]);
     }
 
@@ -83,18 +134,13 @@ class OrderController extends Controller
      */
     public function show(Order $order)
     {
-        //
+        $order->load('orderItems');
+        return response()->json($order);
     }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Order  $order
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Order $order)
+    public function closedShow(Order $order)
     {
-        //
+        $order->load('orderItems')->only('item_title');
+        return response()->json($order);
     }
 
     /**
@@ -106,7 +152,7 @@ class OrderController extends Controller
      */
     public function update(UpdateOrderRequest $request, Order $order)
     {
-        //
+        $validated = $request->validated();
     }
 
     /**
