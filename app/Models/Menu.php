@@ -14,8 +14,12 @@ class Menu extends Model
         'price',
         'image'
     ];
-    protected function orders()
+    // public function orders()
+    // {
+    //     $this->belongsToMany(Order::class);
+    // }
+    public function orderItem()
     {
-        $this->belongsToMany(Order::class);
+        return $this->hasOne(OrderItem::class);
     }
 }
