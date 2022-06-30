@@ -1,5 +1,7 @@
 <?php
 
+namespace App\database\migrations;
+
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -15,9 +17,8 @@ return new class extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
-            $table->foreignid('menu_id')->constrained('menus', 'id')->cascadeOnDelete();
-            $table->string('phone');
-            $table->string('location');
+            $table->string('order_number');
+            $table->boolean('is_placed')->default(false);
             $table->timestamps();
         });
     }
