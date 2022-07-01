@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('price');
             $table->string('image')->nullable();
             $table->string('name');
-            $table->foreignid('menu_id')->nullable()->constrained('menus')->cascadeOnDelete();
+            $table->foreignid('menu_id')->nullable()->constrained('menus')->nullOnDelete();
             $table->foreignid('order_id')->constrained('orders')->cascadeOnDelete();
             $table->timestamps();
         });
