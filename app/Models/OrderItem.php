@@ -15,7 +15,7 @@ class OrderItem extends Model
         'price',
         'image',
         'name',
-        'order_id'
+        'menu_id'
     ];
     public function order()
     {
@@ -23,6 +23,6 @@ class OrderItem extends Model
     }
     public function menu()
     {
-        return $this->belongsTo(Menu::class, 'menu_id', 'id');
+        return $this->belongsTo(Menu::class);
     }
 }
