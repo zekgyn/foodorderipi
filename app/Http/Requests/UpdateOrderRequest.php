@@ -26,15 +26,17 @@ class UpdateOrderRequest extends FormRequest
     public function rules()
     {
         return [
-            'menus' => 'bail|required|array',
-            'menus.*.menu_id' => ['required',  function ($attribute, $value, $fail) {
+            'add_menus' => 'array',
+            'add_menus.*.menu_id' => ['required',  function ($attribute, $value, $fail) {
                 if (!Menu::where([
                     ['id', '=', $value]
                 ])->exists()) {
                     return $fail("{$attribute} does not exist in the menu");
                 }
             }],
-            'menus.*.name' => 'bail|required|string',
+            'add_menus.*.name' => 'bail|required|string',
+            'delete_menus' => 'present|nullable|array',
+            'delete_menus.*' => 'required|distinct|exists:order_items,id'
         ];
     }
 }
