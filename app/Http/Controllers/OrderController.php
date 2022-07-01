@@ -10,6 +10,7 @@ use App\Http\Requests\SendOrderRequest;
 use Illuminate\Validation\Rules\Exists;
 use App\Http\Requests\StoreOrderRequest;
 use App\Http\Requests\UpdateOrderRequest;
+use App\Models\OrderItem;
 use Illuminate\Auth\Events\Validated;
 
 class OrderController extends Controller
@@ -68,6 +69,7 @@ class OrderController extends Controller
                     ->first();
                 // Create order items for new order
                 $order->orderItems()->create([
+                    'menu_id' => $menu['id'],
                     'title' => $menu['title'],
                     'name' => $menuitem['name'],
                     'image' => $menu['image'],
@@ -134,13 +136,22 @@ class OrderController extends Controller
      */
     public function show(Order $order)
     {
-        $order->load('orderItems');
-        return response()->json($order);
+        if ($order->is_placed == false) {
+            $result = $order->with('orderItems:id,order_id,title,name')->get();
+            return response()->json($result);
+        } else {
+            return response()->json(["message" => "Order already closed"]);
+        }
     }
+
     public function closedShow(Order $order)
     {
-        $order->load('orderItems')->only('item_title');
-        return response()->json($order);
+        if ($order->is_placed == true) {
+            $result = $order->with('orderItems:id,order_id,title,name')->get();
+            return response()->json($result);
+        } else {
+            return response()->json(["message" => "Order is still open"]);
+        }
     }
 
     /**
@@ -153,6 +164,37 @@ class OrderController extends Controller
     public function update(UpdateOrderRequest $request, Order $order)
     {
         $validated = $request->validated();
+
+        $order = DB::transaction(function () use ($validated, $order) {
+            // Add order items
+            if (!empty($validated['add_menus'])) {
+                foreach ($validated['add_menus'] as $data) {
+                    $menu = Menu::select('id', 'price', 'image', 'title')
+                        ->where('id', $data['menu_id'])
+                        ->first();
+                    $order->orderItems()->create([
+                        'menu_id' => $menu['id'],
+                        'title' => $menu['title'],
+                        'name' => $data['name'],
+                        'image' => $menu['image'],
+                        'price' => $menu['price']
+                    ]);
+                }
+            }
+            // Delete order items
+            if (!empty($validated['delete_menus'])) {
+                foreach ($validated['delete_menus'] as $id) {
+                    OrderItem::where('id', $id)->delete();
+                }
+            }
+            return $order;
+        });
+
+
+        // return response to client
+        return response()->json([
+            'response' => ['order' => 'Order updated successfully']
+        ]);
     }
 
     /**
