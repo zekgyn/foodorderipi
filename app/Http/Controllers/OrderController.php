@@ -137,8 +137,8 @@ class OrderController extends Controller
     public function show(Order $order)
     {
         if ($order->is_placed == false) {
-            $result = $order->with('orderItems:id,order_id,title,name')->get();
-            return response()->json($result);
+            $result = $order->load('orderItems:id,order_id,title,name');
+            return response($result);
         } else {
             return response()->json(["message" => "Order already closed"]);
         }
@@ -146,8 +146,9 @@ class OrderController extends Controller
 
     public function closedShow(Order $order)
     {
+
         if ($order->is_placed == true) {
-            $result = $order->with('orderItems:id,order_id,title,name')->get();
+            $result = $order->load('orderItems:id,order_id,title,name');
             return response()->json($result);
         } else {
             return response()->json(["message" => "Order is still open"]);
