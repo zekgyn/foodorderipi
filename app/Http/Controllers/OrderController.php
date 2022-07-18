@@ -24,7 +24,7 @@ class OrderController extends Controller
     {
         $orders = Order::where([
             'is_placed' => false
-        ])->paginate(10);
+        ])->orderby('id','desc')->paginate(10);
 
         return $orders;
     }
@@ -32,7 +32,7 @@ class OrderController extends Controller
     {
         $orders = Order::where([
             'is_placed' => true
-        ])->paginate(10);
+        ])->orderby('id', 'desc')->paginate(10);
 
         return $orders;
     }
@@ -92,7 +92,7 @@ class OrderController extends Controller
     {
         $validated = $request->validated();
 
-        //save new order to database
+        //change order status in db
 
         $send = DB::transaction(function () use ($validated) {
 
@@ -112,15 +112,17 @@ class OrderController extends Controller
             ])->first();
             // send sms to restaurant and buyer
             $textrestaurant = "Order# {$order['order_number']}";
+            // return response()->json(["order" => $textrestaurant]);
+            $items = $order->load('orderItems:id,order_id,title,name');
+            foreach ($items['orderItems'] as $item) {
+
+                // return response()->json(["item" => $item]);
+            }
+            // send sms to restaurant
+
             // SendSms::dispatch($textrestaurant, 255620170041);
-
-            // // Send code to user mobile
-            // $textbuyer = "{$menu['title']} is your selected food for today.";
-            // SendSms::dispatch($textbuyer, $validated['phone']);
+            // return response()->json(["order" => $textrestaurant]);
         }
-
-
-
 
         // return response to client
         return response()->json([
