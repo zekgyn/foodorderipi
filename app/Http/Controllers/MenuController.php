@@ -16,11 +16,16 @@ class MenuController extends Controller
      */
     public function index()
     {
-        $menu = Menu::select('id', 'title', 'image')->paginate(15);
+        $menu = Menu::select('id', 'title', 'image')->orderby('id', 'desc')->paginate(15);
 
         return response()->json(['data' => $menu]);
     }
+    public function indexnopg()
+    {
+        $menu = Menu::select('id', 'title', 'image')->orderby('id','desc')->get();
 
+        return response()->json(['data' => $menu]);
+    }
     /**
      * Show the form for creating a new resource.
      *
@@ -39,7 +44,6 @@ class MenuController extends Controller
      */
     public function store(StoreMenuRequest $request)
     {
-
         $validdata = $request->validated();
 
         //save new menu to database
