@@ -18,6 +18,8 @@ use App\Http\Controllers\OrderController;
 
 //menus
 Route::get('menu', [MenuController::class, 'index']);
+Route::get('menunopg', [MenuController::class, 'indexnopg']);
+
 Route::post('menu', [MenuController::class, 'store']);
 
 //create orders
