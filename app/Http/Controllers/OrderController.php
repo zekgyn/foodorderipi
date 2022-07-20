@@ -24,7 +24,7 @@ class OrderController extends Controller
     {
         $orders = Order::where([
             'is_placed' => false
-        ])->orderby('id','desc')->paginate(10);
+        ])->orderby('created_at','desc')->paginate(10);
 
         return $orders;
     }
@@ -32,7 +32,7 @@ class OrderController extends Controller
     {
         $orders = Order::where([
             'is_placed' => true
-        ])->orderby('id', 'desc')->paginate(10);
+        ])->orderby('created_at', 'desc')->paginate(10);
 
         return $orders;
     }
