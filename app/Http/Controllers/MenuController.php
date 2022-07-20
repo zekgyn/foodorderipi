@@ -16,13 +16,13 @@ class MenuController extends Controller
      */
     public function index()
     {
-        $menu = Menu::select('id', 'title', 'image')->orderby('id', 'desc')->paginate(15);
+        $menu = Menu::select('id', 'title', 'image')->orderby('created_at', 'desc')->paginate(15);
 
         return response()->json(['data' => $menu]);
     }
     public function indexnopg()
     {
-        $menu = Menu::select('id', 'title', 'image')->orderby('id','desc')->get();
+        $menu = Menu::select('id', 'title', 'image')->orderby('created_at','desc')->get();
 
         return response()->json(['data' => $menu]);
     }
