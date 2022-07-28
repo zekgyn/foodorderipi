@@ -3,7 +3,9 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MenuController;
+use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\OrderController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -15,30 +17,37 @@ use App\Http\Controllers\OrderController;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+Route::post('login', [LoginController::class, 'login']);
 
-//menus
-Route::get('menu', [MenuController::class, 'index']);
-Route::get('menunopg', [MenuController::class, 'indexnopg']);
+Route::group(['middleware' => 'auth:sanctum'],function () {
+    Route::get('logout', [LoginController::class, 'logout']);
 
-Route::post('menu', [MenuController::class, 'store']);
+    //menus
+    Route::get('menu', [MenuController::class, 'index']);
+    Route::get('menunopg', [MenuController::class, 'indexnopg']);
 
-//create orders
-Route::post('order', [OrderController::class, 'store']);
+    Route::post('menu', [MenuController::class, 'store']);
 
-// update order
-Route::put('order_update/{order}', [OrderController::class, 'update']);
+    //create orders
+    Route::post('order', [OrderController::class, 'store']);
 
-//open orders
-Route::get('open_orders', [OrderController::class, 'index']);
-Route::get('open_order/{order}', [OrderController::class, 'show']);
+    // update order
+    Route::put('order_update/{order}', [OrderController::class, 'update']);
 
-// send order
-Route::post('send_order', [OrderController::class, 'send']);
+    //open orders
+    Route::get('open_orders', [OrderController::class, 'index']);
+    Route::get('open_order/{order}', [OrderController::class, 'show']);
+
+    // send order
+    Route::post('send_order', [OrderController::class, 'send']);
 
 
-//closed orders
-Route::get('closed_orders', [OrderController::class, 'indexClosed']);
-Route::get('closed_order/{order}', [OrderController::class, 'closedShow']);
+    //closed orders
+    Route::get('closed_orders', [OrderController::class, 'indexClosed']);
+    Route::get('closed_order/{order}', [OrderController::class, 'closedShow']);
+
+
+});;
 
 // Route::apiResource();
 // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
