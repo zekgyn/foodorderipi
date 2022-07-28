@@ -18,16 +18,16 @@ class User extends Authenticatable
 
     public $incrementing = false;
 
-    // static function for generating uuid and order number
+    // static function for generating uuid
     protected static function boot()
     {
         parent::boot();
 
         static::creating(function ($model) {
-            $model->id = (string) Str::uuid(); //generate uuid
-            $model->order_number = strtoupper(bin2hex(openssl_random_pseudo_bytes(5, $cstrong))); //generate order number
+            $model->id = (string) Str::uuid(); //generate uuid//generate order number
         });
     }
+
     /**
      * The attributes that are mass assignable.
      *
@@ -38,10 +38,11 @@ class User extends Authenticatable
         'email',
         'password',
     ];
+
     public function resolveRouteBinding($value, $field = null)
     {
         if (!Str::isUuid($value)) {
-            throw (new ModelNotFoundException)->setModel(Order::class, $value);
+            throw (new ModelNotFoundException)->setModel(User::class, $value);
         }
         return $this->where("id", $value)->firstOrFail();
     }
