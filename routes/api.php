@@ -20,7 +20,7 @@ use App\Http\Controllers\OrderController;
 Route::post('login', [LoginController::class, 'login']);
 
 Route::group(['middleware' => 'auth:sanctum'],function () {
-    Route::get('logout', [LoginController::class, 'logout']);
+    Route::post('logout', [LoginController::class, 'logout']);
 
     //menus
     Route::get('menu', [MenuController::class, 'index']);
