@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Models\Menu;
 use App\Models\OrderItem;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Model;
