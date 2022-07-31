@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Menu;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Requests\StoreMenuRequest;
 use App\Http\Requests\UpdateMenuRequest;
+use Illuminate\Support\Facades\Validator;
 
 class MenuController extends Controller
 {
@@ -16,24 +18,15 @@ class MenuController extends Controller
      */
     public function index()
     {
-        $menu = Menu::select('id', 'title', 'image')->orderby('created_at', 'desc')->paginate(15);
+        $menu = Menu::select('id', 'title','price', 'image')->orderby('created_at', 'desc')->paginate(15);
 
         return response()->json(['data' => $menu]);
     }
-    public function indexnopg()
+    public function indexall()
     {
-        $menu = Menu::select('id', 'title', 'image')->orderby('created_at','desc')->get();
+        $menu = Menu::select('id', 'title','price', 'image')->orderby('created_at','desc')->get();
 
         return response()->json(['data' => $menu]);
-    }
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
     }
 
     /**
@@ -46,13 +39,10 @@ class MenuController extends Controller
     {
         $validdata = $request->validated();
 
-        //save new menu to database
-        // create product
+        // create menu
         $product = Menu::create([
             'title' => strtolower($validdata['title']),
-            // 'image' => $imageService->save($validdata['image'], $imageDir),
             'image' => $validdata['image'],
-
             'price' => $validdata['price'],
         ]);
 
@@ -62,27 +52,7 @@ class MenuController extends Controller
         ]);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Menu  $menu
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Menu $menu)
-    {
-        //
-    }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Menu  $menu
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Menu $menu)
-    {
-        //
-    }
 
     /**
      * Update the specified resource in storage.
@@ -91,9 +61,41 @@ class MenuController extends Controller
      * @param  \App\Models\Menu  $menu
      * @return \Illuminate\Http\Response
      */
-    public function update(UpdateMenuRequest $request, Menu $menu)
+    public function update(Request $request, Menu $menu)
     {
-        //
+        $data = Validator::make($request->all(), [
+            'title' => [
+                'required', 'string',
+                function ($attribute, $value, $fail) use ($menu) {
+                    if (Menu::where([
+                        ['id', '!=', $menu->id],
+                        ['title', '=', strtolower($value)]
+                    ])->exists()) {
+                        return $fail("{$attribute} already exists");
+                    }
+                }
+            ],
+            'price' => 'required|regex:/^\d{1,16}+(\.\d{1,2})?$/',
+            'image' => 'present|nullable'
+        ])->validate();
+
+        if (Menu::where([
+            ['id', '=', $menu->id]
+        ])->exists()){
+            $menu->update([
+                'title' => strtolower($data['title']),
+                'price' => $data['price'],
+                'image' => $data['image'],
+            ]);
+            return response()->json([
+                'response' => 'menu has been updated'
+            ]);
+        }else{
+            return response()->json([
+                'response' => 'This menu no longer exists'
+            ]);
+
+        }
     }
 
     /**
@@ -104,6 +106,19 @@ class MenuController extends Controller
      */
     public function destroy(Menu $menu)
     {
-        //
+        if(Menu::where('id', $menu->id)
+        ->exists()){
+            $menu->destroy($menu->id);
+
+            return response()->json([
+                'response' => 'Menu has been deleted successfully'
+            ]);
+        }
+            else {
+            return response()->json([
+                'response' => 'Menu does not exist'
+            ]);
+            }
+
     }
 }

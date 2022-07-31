@@ -34,13 +34,12 @@ class Menu extends Model
 
     public function resolveRouteBinding($value, $field = null)
     {
-
         if (!Str::isUuid($value)) {
             throw (new ModelNotFoundException)->setModel(Menu::class, $value);
         }
-
         return $this->where("id", $value)->firstOrFail();
     }
+
     // public function orders()
     // {
     //     $this->belongsToMany(Order::class);
