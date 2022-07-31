@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Employee;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreEmployeeRequest extends FormRequest
@@ -13,7 +14,7 @@ class StoreEmployeeRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -24,7 +25,8 @@ class StoreEmployeeRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'name' => 'required|string',
+            'phone' => 'required|integer|unique:employees|digits:12'
         ];
     }
 }
