@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Employee;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 use App\Http\Requests\StoreEmployeeRequest;
 use App\Http\Requests\UpdateEmployeeRequest;
-use App\Models\Employee;
 
 class EmployeeController extends Controller
 {
@@ -15,18 +17,17 @@ class EmployeeController extends Controller
      */
     public function index()
     {
-        //
+        $employee = Employee::select('id', 'name', 'phone')->orderby('created_at', 'desc')->paginate(15);
+
+        return response()->json(['data' => $employee]);
+    }
+    public function indexall()
+    {
+        $employee = Employee::select('id','name', 'phone')->orderby('created_at', 'desc')->get();
+
+        return response()->json(['data' => $employee]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
 
     /**
      * Store a newly created resource in storage.
@@ -36,31 +37,18 @@ class EmployeeController extends Controller
      */
     public function store(StoreEmployeeRequest $request)
     {
-        //
-    }
+        $data= $request->validated();
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Employee  $employee
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Employee $employee)
-    {
-        //
-    }
+        Employee::create([
+            'name' => strtolower($data['name']),
+            'phone' => $data['phone'],
+        ]);
+        return response()->json([
+            'response' => 'Employee  has been created successfully'
+        ]);
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Employee  $employee
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Employee $employee)
-    {
-        //
-    }
 
+    }
     /**
      * Update the specified resource in storage.
      *
@@ -68,9 +56,39 @@ class EmployeeController extends Controller
      * @param  \App\Models\Employee  $employee
      * @return \Illuminate\Http\Response
      */
-    public function update(UpdateEmployeeRequest $request, Employee $employee)
+    public function update(Request $request, Employee $employee)
     {
-        //
+        $data = Validator::make($request->all(), [
+            'name' => 'required|string',
+            'phone' =>'required|integer|unique:employees|digits:12',
+            // [
+            //     'required', 'integer', 'unique:employees', 'digits:12',
+            //     function ($attribute, $value, $fail) use ($employee) {
+            //         if (Employee::where([
+            //             ['id', '!=', $employee->id],
+            //             ['phone', '=', $value]
+            //         ])->exists()) {
+            //             return $fail("{$attribute} already exists");
+            //         }
+            //     }
+            // ]
+        ])->validate();
+
+        if (Employee::where([
+            ['id', '=', $employee->id]
+        ])->exists()) {
+            $employee->update([
+                'name' => strtolower($data['name']),
+                'phone' => $data['phone']
+            ]);
+            return response()->json([
+                'response' => 'employee has been updated'
+            ]);
+        } else {
+            return response()->json([
+                'response' => 'This employee no longer exists'
+            ]);
+        }
     }
 
     /**
@@ -81,6 +99,19 @@ class EmployeeController extends Controller
      */
     public function destroy(Employee $employee)
     {
-        //
+        if (Employee::where('id', $employee->id)
+            ->exists()
+        ) {
+            $employee->destroy($employee->id);
+
+            return response()->json([
+                'response' => 'Employee has been deleted successfully'
+            ]);
+        } else {
+            return response()->json([
+                'response' => 'Employee does not exist'
+            ]);
+        }
+
     }
 }
