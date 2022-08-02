@@ -59,19 +59,19 @@ class EmployeeController extends Controller
     public function update(Request $request, Employee $employee)
     {
         $data = Validator::make($request->all(), [
-            'name' => 'required|string',
-            'phone' =>'required|integer|unique:employees|digits:12',
-            // [
-            //     'required', 'integer', 'unique:employees', 'digits:12',
-            //     function ($attribute, $value, $fail) use ($employee) {
-            //         if (Employee::where([
-            //             ['id', '!=', $employee->id],
-            //             ['phone', '=', $value]
-            //         ])->exists()) {
-            //             return $fail("{$attribute} already exists");
-            //         }
-            //     }
-            // ]
+            'phone' => [
+                'required', 'integer','digits:12',
+                function ($attribute, $value, $fail) use ($employee) {
+                    if (Employee::where([
+                        ['id', '!=', $employee->id],
+                        ['phone', '=', strtolower($value)]
+                    ])->exists()) {
+                        return $fail("{$attribute} number already exists");
+                    }
+                }
+            ],
+            'name' => 'required|string'
+            // 'image' => 'present|nullable'
         ])->validate();
 
         if (Employee::where([
