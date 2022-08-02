@@ -38,9 +38,38 @@ class Order extends Model
         }
         return $this->where("id", $value)->firstOrFail();
     }
+    //Filter by date
+    public function scopeFilterByDate($query, $startDate = null, $endDate = null)
+    {
+
+        //Check if start date is passed
+        if ($startDate && !$endDate) {
+            $startDate = date("Y-m-d", strtotime($startDate));
+            $query->where(function ($query) use ($startDate) {
+                $query->whereDate('created_at', '>=', $startDate);
+            });
+        }
+
+        //Check if end date is passed
+        elseif (!$startDate && $endDate) {
+            $endDate = date("Y-m-d", strtotime($endDate));
+            $query->where(function ($query) use ($endDate) {
+                $query->whereDate('created_at', '<=', $endDate);
+            });
+        }
+
+        //Check if end date and start date is passed
+        elseif ($startDate && $endDate) {
+            $query->where(function ($query) use ($startDate, $endDate) {
+                $query->whereBetween('created_at', [$startDate, $endDate])
+                    ->orWhereDate('created_at', $startDate)
+                    ->orWhereDate('created_at', $endDate);
+            });
+        }
+    }
 
     public function orderItems()
     {
-        return $this->hasMany(OrderItem::class);
+        return $this->hasMany(OrderItem::class)->with(['menu:id,title,price', 'employee:id,name']);
     }
 }
