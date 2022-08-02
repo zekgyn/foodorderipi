@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Models\Menu;
+use App\Models\Employee;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreOrderRequest extends FormRequest
@@ -35,7 +36,14 @@ class StoreOrderRequest extends FormRequest
                     return $fail("{$attribute} does not exist in the menu");
                 }
             }],
-            'menus.*.name' => 'bail|required|string',
+            'menus.*.employee_id' => ['required', function ($attribute, $value, $fail) {
+                // $menuid = request()->menu_id;
+                if (!Employee::where([
+                    ['id', '=', $value]
+                ])->exists()) {
+                    return $fail("{$attribute} does not exist");
+                }
+            }]
 
         ];
     }
