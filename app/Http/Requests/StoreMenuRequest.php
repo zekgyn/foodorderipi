@@ -35,8 +35,8 @@ class StoreMenuRequest extends FormRequest
                     }
                 }
             ],
-            'price' => 'required|regex:/^\d{1,16}+(\.\d{1,2})?$/',
-            'image' => 'present|nullable',
+            'price' => 'required|regex:/^\d{1,16}+(\.\d{1,2})?$/'
+            // 'image' => 'present|nullable',
 
         ];
     }
