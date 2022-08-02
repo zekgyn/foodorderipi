@@ -15,10 +15,7 @@ return new class extends Migration
     {
         Schema::create('order_items', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('title');
-            $table->string('price');
-            $table->string('image')->nullable();
-            $table->string('name');
+            $table->foreignUuid('employee_id')->constrained('employees')->nullOnDelete();
             $table->foreignUuid('menu_id')->nullable()->constrained('menus')->nullOnDelete();
             $table->foreignUuid('order_id')->constrained('orders')->cascadeOnDelete();
             $table->timestamps();
