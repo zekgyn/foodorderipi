@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Models\Menu;
 use App\Models\Order;
+use App\Models\Employee;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateOrderRequest extends FormRequest
@@ -26,17 +27,25 @@ class UpdateOrderRequest extends FormRequest
     public function rules()
     {
         return [
-            'add_menus' => 'array',
-            'add_menus.*.menu_id' => ['required',  function ($attribute, $value, $fail) {
+            'add_item' => 'array',
+            'add_item.*.menu_id' => ['required', 'string',  function ($attribute, $value, $fail) {
                 if (!Menu::where([
                     ['id', '=', $value]
                 ])->exists()) {
                     return $fail("{$attribute} does not exist in the menu");
                 }
             }],
-            'add_menus.*.name' => 'bail|required|string',
-            'delete_menus' => 'present|nullable|array',
-            'delete_menus.*' => 'required|distinct|exists:order_items,id'
+             'add_item.*.employee_id' => [
+                'bail','required','string',
+                function ($attribute, $value, $fail) {
+                    if (!Employee::where([
+                        ['id', '=', $value]
+                    ])->exists()) {
+                      return $fail("{$attribute} does not exist");
+                 }
+            }],
+            'delete_item' => 'present|nullable|array',
+            'delete_item.*' => 'required|distinct|exists:order_items,id'
         ];
     }
 }
