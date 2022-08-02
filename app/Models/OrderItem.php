@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Order;
+use App\Models\Employee;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -26,10 +27,7 @@ class OrderItem extends Model
     }
 
     protected $fillable = [
-        'title',
-        'price',
-        'image',
-        'name',
+        'employee_id',
         'menu_id'
     ];
 
@@ -42,13 +40,47 @@ class OrderItem extends Model
         return $this->where("id", $value)->firstOrFail();
     }
 
+    //Filter by date
+    public function scopeFilterByDate($query, $startDate = null, $endDate = null)
+    {
+        //Check if start date is passed
+        if ($startDate && !$endDate) {
+            $startDate = date("Y-m-d", strtotime($startDate));
+            $query->where(function ($query) use ($startDate) {
+                $query->whereDate('created_at', '>=', $startDate);
+            });
+        }
+
+        //Check if end date is passed
+        elseif (!$startDate && $endDate) {
+            $endDate = date("Y-m-d", strtotime($endDate));
+            $query->where(function ($query) use ($endDate) {
+                $query->whereDate('created_at', '<=', $endDate);
+            });
+        }
+
+        //Check if end date and start date is passed
+        elseif ($startDate && $endDate) {
+            $query->where(function ($query) use ($startDate, $endDate) {
+                $query->whereBetween('created_at', [$startDate, $endDate])
+                    ->orWhereDate('created_at', $startDate)
+                    ->orWhereDate('created_at', $endDate);
+            });
+        }
+    }
 
     public function order()
     {
         return $this->belongsTo(Order::class);
     }
+
+    //try hasone if current fails
     public function menu()
     {
         return $this->belongsTo(Menu::class);
+    }
+    public function employee()
+    {
+        return $this->belongsTo(Employee::class, 'employee_id');
     }
 }
