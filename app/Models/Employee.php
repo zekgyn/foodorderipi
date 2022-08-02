@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\OrderItem;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -37,4 +38,9 @@ class Employee extends Model
         }
         return $this->where("id", $value)->firstOrFail();
     }
+
+    // public function orderItem()
+    // {
+    //     return $this->belongsTo(OrderItem::class);
+    // }
 }
