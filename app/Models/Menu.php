@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Models\Order;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -18,8 +17,7 @@ class Menu extends Model
 
     protected $fillable = [
         'title',
-        'price',
-        'image'
+        'price'
     ];
 
     // static function for generating uuid
@@ -38,14 +36,5 @@ class Menu extends Model
             throw (new ModelNotFoundException)->setModel(Menu::class, $value);
         }
         return $this->where("id", $value)->firstOrFail();
-    }
-
-    // public function orders()
-    // {
-    //     $this->belongsToMany(Order::class);
-    // }
-    public function orderItem()
-    {
-        return $this->hasOne(OrderItem::class);
     }
 }
