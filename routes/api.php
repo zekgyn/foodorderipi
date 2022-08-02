@@ -49,7 +49,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get('report', [OrderController::class, 'report']);
 
 });
-;
+
 
 // Route::apiResource();
 // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
