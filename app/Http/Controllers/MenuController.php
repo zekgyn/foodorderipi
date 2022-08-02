@@ -18,13 +18,13 @@ class MenuController extends Controller
      */
     public function index()
     {
-        $menu = Menu::select('id', 'title','price', 'image')->orderby('created_at', 'desc')->paginate(15);
+        $menu = Menu::select('id', 'title','price')->orderby('created_at', 'desc')->paginate(15);
 
         return response()->json(['data' => $menu]);
     }
     public function indexall()
     {
-        $menu = Menu::select('id', 'title','price', 'image')->orderby('created_at','desc')->get();
+        $menu = Menu::select('id', 'title','price')->orderby('created_at','desc')->get();
 
         return response()->json(['data' => $menu]);
     }
@@ -42,7 +42,7 @@ class MenuController extends Controller
         // create menu
         $product = Menu::create([
             'title' => strtolower($validdata['title']),
-            'image' => $validdata['image'],
+            // 'image' => $validdata['image'],
             'price' => $validdata['price'],
         ]);
 
@@ -75,8 +75,8 @@ class MenuController extends Controller
                     }
                 }
             ],
-            'price' => 'required|regex:/^\d{1,16}+(\.\d{1,2})?$/',
-            'image' => 'present|nullable'
+            'price' => 'required|regex:/^\d{1,16}+(\.\d{1,2})?$/'
+            // 'image' => 'present|nullable'
         ])->validate();
 
         if (Menu::where([
@@ -85,7 +85,7 @@ class MenuController extends Controller
             $menu->update([
                 'title' => strtolower($data['title']),
                 'price' => $data['price'],
-                'image' => $data['image'],
+                // 'image' => $data['image'],
             ]);
             return response()->json([
                 'response' => 'menu has been updated'
