@@ -37,15 +37,15 @@ class OrderController extends Controller
      */
     public function show($order)
     {
-        $result = Order::select('id', 'order_number', 'created_at')->where('id', $order)
+        $result = Order::select('id', 'order_number','is_placed','created_at')->where('id', $order)
         ->with('orderItems:id,employee_id,menu_id,order_id')
-        ->orderBy('created_at')->get();
+        ->orderBy('created_at')->first();
         // $order->with('orderItems:id,employee_id,menu_id,order_id')->get();
         // $result = $order->with('orderItems')->get();
 
-    //    $order->with(['orderItems:id' => function ($q) use ($order) {
-    //         $q->wherePivot('menu_id', '=', $order);
-    //     }])->first();
+        //    $order->with(['orderItems:id' => function ($q) use ($order) {
+        //         $q->wherePivot('menu_id', '=', $order);
+        //     }])->first();
 
         return $result;
         // return response()->json($result);
@@ -100,29 +100,29 @@ class OrderController extends Controller
             $order->save();
 
 
-        //retrieve created order
-        if (Order::where([
+            //retrieve created order
+            if (Order::where([
             'id' => $validated['order_id'],
             'is_placed' => true
         ])->first()) {
-            // retrieve order info
-            $order = Order::where([
+                // retrieve order info
+                $order = Order::where([
                 'id' => $validated['order_id'],
                 'is_placed' => true
             ])->first();
-            // send sms to restaurant and buyer
-            $textrestaurant = "Order# {$order['order_number']}";
-            // return response()->json(["order" => $textrestaurant]);
-            $items = $order->load('orderItems:id,order_id,menu_id');
-            foreach ($items['orderItems'] as $item) {
+                // send sms to restaurant and buyer
+                $textrestaurant = "Order# {$order['order_number']}";
+                // return response()->json(["order" => $textrestaurant]);
+                $items = $order->load('orderItems:id,order_id,menu_id');
+                foreach ($items['orderItems'] as $item) {
 
-                // return response()->json(["item" => $item]);
+                    // return response()->json(["item" => $item]);
+                }
+                // send sms to restaurant
+
+                // SendSms::dispatch($textrestaurant, 255620170041);
+                // return response()->json(["order" => $textrestaurant]);
             }
-            // send sms to restaurant
-
-            // SendSms::dispatch($textrestaurant, 255620170041);
-            // return response()->json(["order" => $textrestaurant]);
-        }
         });
         // return response to client
         return response()->json([
@@ -180,18 +180,18 @@ class OrderController extends Controller
      */
     public function report()
     {
-        if (OrderItem::filterByDate(request('start_date'),request('end_date'))
+        if (OrderItem::filterByDate(request('start_date'), request('end_date'))
                 ->orderBy('created_at')->exists()) {
-            $report = Order::select('id','order_number','created_at')->filterByDate(request('start_date'), request('end_date'))
+            $report = Order::select('id', 'order_number', 'created_at')
+                ->where('is_placed',true)
+                ->filterByDate(request('start_date'), request('end_date'))
                 ->with('orderItems:id,employee_id,menu_id,order_id')
-                ->orderBy('created_at')->get();
+                ->orderBy('created_at')
+                ->get();
 
             return response()->json($report);
-
+        } else {
+            return response()->json([], 404);
         }
-        else {
-            return response()->json([],404);
-        }
-
     }
 }
