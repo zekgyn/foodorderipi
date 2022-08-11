@@ -23,6 +23,7 @@ class Report extends Model
             $model->id = (string) Str::uuid(); //generate uuid
         });
     }
+    
     protected $fillable = [
         'order_number',
         'menu',
@@ -37,6 +38,7 @@ class Report extends Model
         }
         return $this->where("id", $value)->firstOrFail();
     }
+
     //Filter by date
     public function scopeFilterByDate($query, $startDate = null, $endDate = null)
     {
