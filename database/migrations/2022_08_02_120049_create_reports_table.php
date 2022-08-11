@@ -14,8 +14,8 @@ return new class extends Migration
     public function up()
     {
         Schema::create('reports', function (Blueprint $table) {
-            $table->uuid()->primary();
-            $table->foreignUuid('order_id')->straine;
+            $table->uuid('id')->primary();
+            $table->string('order_number');
             $table->string('menu');
             $table->string('employee');
             $table->string('amount');
