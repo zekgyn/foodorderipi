@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Menu;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Http\Resources\menuResource;
 use App\Http\Requests\StoreMenuRequest;
 use App\Http\Requests\UpdateMenuRequest;
 use Illuminate\Support\Facades\Validator;
@@ -18,15 +19,16 @@ class MenuController extends Controller
      */
     public function index()
     {
-        $menu = Menu::select('id', 'title','price')->orderby('created_at', 'desc')->paginate(15);
+        $menu = Menu::select('id', 'title', 'price', 'is_active')->orderby('created_at', 'desc')->paginate(15);
 
-        return response()->json(['data' => $menu]);
+        return menuResource::collection($menu);
     }
     public function indexall()
     {
-        $menu = Menu::select('id', 'title','price')->orderby('created_at','desc')->get();
+        $menu = Menu::where('is_active', true)->select('id', 'title', 'price')->orderby('created_at', 'desc')->get();
 
         return response()->json(['data' => $menu]);
+
     }
 
     /**
@@ -40,7 +42,7 @@ class MenuController extends Controller
         $validdata = $request->validated();
 
         // create menu
-        $product = Menu::create([
+        $menu = Menu::create([
             'title' => strtolower($validdata['title']),
             // 'image' => $validdata['image'],
             'price' => $validdata['price'],
@@ -77,11 +79,14 @@ class MenuController extends Controller
             ],
             'price' => 'required|regex:/^\d{1,16}+(\.\d{1,2})?$/'
             // 'image' => 'present|nullable'
-        ])->validate();
+        ],[
+            'title.required' => 'Unique title is required.',
+            'price.required' => 'The :attribute field is required.',
+            ])->validate();
 
         if (Menu::where([
             ['id', '=', $menu->id]
-        ])->exists()){
+        ])->exists()) {
             $menu->update([
                 'title' => strtolower($data['title']),
                 'price' => $data['price'],
@@ -90,11 +95,10 @@ class MenuController extends Controller
             return response()->json([
                 'response' => 'menu has been updated'
             ]);
-        }else{
+        } else {
             return response()->json([
                 'response' => 'This menu no longer exists'
             ]);
-
         }
     }
 
@@ -104,21 +108,20 @@ class MenuController extends Controller
      * @param  \App\Models\Menu  $menu
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Menu $menu)
+    public function menuStatus(Request $request, Menu $menu)
     {
-        if(Menu::where('id', $menu->id)
-        ->exists()){
-            $menu->destroy($menu->id);
+        $validated = Validator::make($request->all(), [
+            'is_active' => 'required|boolean',
+        ])->validate();
 
-            return response()->json([
-                'response' => 'Menu has been deleted successfully'
-            ]);
+        // $menu->fill($request->only(['is_active']));
+        $menu->is_active = $validated['is_active'];
+
+        if ($menu->isClean('is_active')) {
+            return response()->json(['message' => 'You need to specify different value'], 422);
         }
-            else {
-            return response()->json([
-                'response' => 'Menu does not exist'
-            ]);
-            }
 
+        $menu->save();
+        return response()->json(['message' => 'Menu Status updated']);
     }
 }
