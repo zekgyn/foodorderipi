@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Order;
 use App\Models\Employee;
 use Illuminate\Support\Str;
+use App\Models\EmployeeMenuItems;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -28,7 +29,7 @@ class OrderItem extends Model
 
     protected $fillable = [
         'employee_id',
-        'menu_id'
+        'amount'
     ];
 
     public function resolveRouteBinding($value, $field = null)
@@ -73,14 +74,12 @@ class OrderItem extends Model
     {
         return $this->belongsTo(Order::class);
     }
-
-    //try hasone if current fails
-    public function menu()
-    {
-        return $this->belongsTo(Menu::class);
-    }
     public function employee()
     {
         return $this->belongsTo(Employee::class);
+    }
+    public function employeeItems()
+    {
+        return $this->hasMany(EmployeeMenuItems::class);
     }
 }
