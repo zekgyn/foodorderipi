@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Models\Menu;
 use App\Models\Employee;
+use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreOrderRequest extends FormRequest
@@ -27,24 +28,36 @@ class StoreOrderRequest extends FormRequest
     public function rules()
     {
         return [
-            'menus' => 'bail|required|array',
-            'menus.*.menu_id' => ['required', function ($attribute, $value, $fail) {
-                // $menuid = request()->menu_id;
+            'items' => 'bail|required|array|min:1',
+            'items.*.employee_id' => ['required','distinct', function ($attribute, $value, $fail) {
+                if (!Employee::where([
+                    ['id', '=', $value]
+                ])->exists() || !Employee::where([
+                    ['id', '=', $value],
+                    ['is_active', '=', true]
+                ])->exists()) {
+                    return $fail("{$attribute} does not exist");
+                }
+            }],
+            'items.*.menu' => 'bail|required|array',
+            'items.*.menu.*.menu_id' => [
+                'required'
+            //     ,Rule::forEach(function ($attribute) {
+            //     return [
+            //         Rule::distinct($attribute),
+            //     ];
+            // })
+            , function ($attribute, $value, $fail) {
                 if (!Menu::where([
                     ['id', '=', $value]
+                ])->exists() || !Menu::where([
+                    ['id', '=', $value],
+                    ['is_active', '=', true]
                 ])->exists()) {
                     return $fail("{$attribute} does not exist in the menu");
                 }
             }],
-            'menus.*.employee_id' => ['required', function ($attribute, $value, $fail) {
-                // $menuid = request()->menu_id;
-                if (!Employee::where([
-                    ['id', '=', $value]
-                ])->exists()) {
-                    return $fail("{$attribute} does not exist");
-                }
-            }]
-
+            'items.*.menu.*.qty' => 'bail|required|numeric|min:1',
         ];
     }
 }
