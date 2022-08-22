@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Http\Resources\employeeMenuResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class orderItemsResource extends JsonResource
@@ -18,9 +19,10 @@ class orderItemsResource extends JsonResource
 
         return [
             'id'=>$this->id,
-            'menu' => $this->menu->title,
             'employee' => $this->employee->name,
-            'price' => $this->menu->price,
+            'total' => $this->amount,
+            'menu_item' => employeeMenuResource::collection($this->whenLoaded('employeeItems')),
+
         ];
     }
 }
