@@ -18,6 +18,13 @@ class StoreMenuRequest extends FormRequest
     }
 
     /**
+     * Indicates if the validator should stop on the first rule failure.
+     *
+     * @var bool
+     */
+    protected $stopOnFirstFailure = true;
+
+    /**
      * Get the validation rules that apply to the request.
      *
      * @return array<string, mixed>
@@ -37,7 +44,19 @@ class StoreMenuRequest extends FormRequest
             ],
             'price' => 'required|regex:/^\d{1,16}+(\.\d{1,2})?$/'
             // 'image' => 'present|nullable',
+        ];
+    }
 
+    /**
+     * Get the error messages for the defined validation rules.
+     *
+     * @return array
+     */
+    public function messages()
+    {
+        return [
+            'title.required' => 'A title is required',
+            'price.required' => 'price is required',
         ];
     }
 }
