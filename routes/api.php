@@ -29,20 +29,28 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get('menu_all', [MenuController::class, 'indexall']);
     Route::post('create_menu', [MenuController::class, 'store']);
     Route::put('update_menu/{menu}', [MenuController::class, 'update']);
-    Route::delete('delete_menu/{menu}', [MenuController::class, 'destroy']);
+    Route::patch('update_menu_status/{menu}', [MenuController::class, 'menuStatus']);
 
     //employees
     Route::get('employees', [EmployeeController::class, 'index']);
     Route::get('employees_all', [EmployeeController::class, 'indexall']);
     Route::post('create_employee', [EmployeeController::class, 'store']);
     Route::put('update_employee/{employee}', [EmployeeController::class, 'update']);
-    Route::delete('delete_employee/{employee}', [EmployeeController::class, 'destroy']);
+    Route::patch('update_employee_status/{employee}', [EmployeeController::class, 'employeeStatus']);
+
+    // Route::delete('delete_employee/{employee}', [EmployeeController::class, 'destroy']);
 
     //orders
     Route::get('orders', [OrderController::class, 'index']);
     Route::get('show_order/{order}', [OrderController::class, 'show']);
     Route::post('create_order', [OrderController::class, 'store']);
     Route::put('update_order/{order}', [OrderController::class, 'update']);
+
+    // get employee items for order
+    Route::get('get_employee_orders/{order}', [OrderController::class, 'employeeOrders']);
+
+
+
 
     // send order
     Route::post('send_order', [OrderController::class, 'send']);
