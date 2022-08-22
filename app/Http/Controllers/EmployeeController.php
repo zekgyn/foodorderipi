@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Requests\StoreEmployeeRequest;
 use App\Http\Requests\UpdateEmployeeRequest;
+use App\Http\Resources\employeeResource;
 
 class EmployeeController extends Controller
 {
@@ -17,13 +18,13 @@ class EmployeeController extends Controller
      */
     public function index()
     {
-        $employee = Employee::select('id', 'name', 'phone')->orderby('created_at', 'desc')->paginate(15);
+        $employee = Employee::select('id', 'name', 'phone','is_active')->orderby('created_at', 'desc')->paginate(15);
 
-        return response()->json(['data' => $employee]);
+        return employeeResource::collection($employee);
     }
     public function indexall()
     {
-        $employee = Employee::select('id','name', 'phone')->orderby('created_at', 'desc')->get();
+        $employee = Employee::select('id','name', 'phone')->where('is_active', true)->orderby('created_at', 'desc')->get();
 
         return response()->json(['data' => $employee]);
     }
@@ -91,27 +92,21 @@ class EmployeeController extends Controller
         }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Employee  $employee
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Employee $employee)
+    public function employeeStatus(Request $request, Employee $employee)
     {
-        if (Employee::where('id', $employee->id)
-            ->exists()
-        ) {
-            $employee->destroy($employee->id);
+        $validated = Validator::make($request->all(), [
+            'is_active' => 'required|boolean',
+        ])->validate();
 
-            return response()->json([
-                'response' => 'Employee has been deleted successfully'
-            ]);
-        } else {
-            return response()->json([
-                'response' => 'Employee does not exist'
-            ]);
+
+        $employee->is_active = $validated['is_active'];
+
+        if ($employee->isClean('is_active')) {
+            return response()->json(['message' => 'You need to specify different value'], 422);
         }
+
+        $employee->save();
+        return response()->json(['message' => 'Employee Status updated']);
 
     }
 }
