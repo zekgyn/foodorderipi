@@ -17,7 +17,7 @@ return new class extends Migration {
         Schema::create('orders', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('order_number')->unique();
-            $table->boolean('is_placed')->default(false);
+            $table->boolean('is_complete')->default(false);
             $table->timestamps();
         });
     }

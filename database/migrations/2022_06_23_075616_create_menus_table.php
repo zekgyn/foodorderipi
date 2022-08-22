@@ -17,6 +17,7 @@ return new class extends Migration {
             $table->string('title')->unique();
             $table->unsignedDecimal('price');
             $table->string('image')->nullable();
+            $table->boolean('is_active')->default('true');
             $table->timestamps();
         });
     }
