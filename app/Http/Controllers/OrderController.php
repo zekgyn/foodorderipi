@@ -7,6 +7,7 @@ use App\Jobs\SendSms;
 use App\Models\Order;
 use App\Models\Report;
 use App\Models\OrderItem;
+use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Auth\Events\Validated;
@@ -15,8 +16,8 @@ use App\Http\Resources\reportsResource;
 use Illuminate\Validation\Rules\Exists;
 use App\Http\Requests\StoreOrderRequest;
 use App\Http\Requests\UpdateOrderRequest;
-use App\Http\Resources\orderItemsResource;
 use App\Http\Resources\orderShowResource;
+use App\Http\Resources\orderItemsResource;
 
 class OrderController extends Controller
 {
@@ -38,26 +39,24 @@ class OrderController extends Controller
      * @param  \App\Models\Order  $order
      * @return \Illuminate\Http\Response
      */
-    // public function show(Order $order)
-    // {
-    //     $order->loadMissing(['orderItems']);
+    public function employeeOrders(Order $order)
+    {
+        $order->loadMissing(['orderItems']);
 
-    //     return (new orderShowResource($order))->response();
-    // }
+        return (new orderShowResource($order))->response();
+    }
+
+
+     /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
     public function show($order)
     {
-        $result = Order::select('id', 'order_number', 'is_placed', 'created_at')->where('id', $order)
-            ->with('orderItems:id,employee_id,menu_id,order_id')
-            ->orderBy('created_at')->first();
-        // $order->with('orderItems:id,employee_id,menu_id,order_id')->get();
-        // $result = $order->with('orderItems')->get();
-
-        //    $order->with(['orderItems:id' => function ($q) use ($order) {
-        //         $q->wherePivot('menu_id', '=', $order);
-        //     }])->first();
-
-        return $result;
-        // return response()->json($result);
+        $items = OrderItem::where('order_id', $order)->orderby('created_at', 'desc')->paginate(15);
+        $items->loadMissing(['employeeItems']);
+        return orderItemsResource::collection($items);
     }
     /**
      * Store a newly created resource in storage.
@@ -69,19 +68,36 @@ class OrderController extends Controller
     {
         $validated = $request->validated();
 
-        DB::transaction(function () use ($validated) {
-            $order = Order::create([
-                'is_placed' => false
-            ]);
-            //Loop menu items and insert into the database
-            foreach ($validated['menus'] as $item) {
+        // DB::transaction(function () use ($validated) {
+        $order = Order::create([
+                'is_complete' => false
+        ]);
 
-                $order->orderItems()->create([
-                    'menu_id' => $item['menu_id'],
-                    'employee_id' => $item['employee_id'],
+        // print data_get($validated, '*.qty');
+        //Loop menu items and insert into the database
+        foreach ($validated['items'] as $item) {
+
+            $qty = data_get($item, 'menu.*.qty');
+            $price = Menu::select('price')->where('id', data_get($item, 'menu.*.menu_id'))->first();
+//amount not exact it only takes the first menu.
+            $items = $order->orderItems()->create([
+                'employee_id' => $item['employee_id'],
+                'amount' => (int) $price->price * (int) $qty,
+            ]);
+
+            foreach ($item['menu'] as $i) {
+                $items->employeeItems()->create([
+                    'menu_id' => $i['menu_id'],
+                    'quantity' => $i['qty']
                 ]);
             }
-        });
+
+            // return $price =  Menu::where('id', $res)->first();
+
+            //     $price = Menu::select('price')->where('id', data_get($item, 'menu.*.menu_id');)->first();
+            //     // echo $total= $price->price;
+        }
+        // });
         // return response to client
         return response()->json([
             'response' => ['order' => 'Order created successfully']
@@ -136,17 +152,16 @@ class OrderController extends Controller
         $validated = $request->validated();
 
         $db = DB::transaction(function () use ($validated) {
-        // change order status in db
+            // change order status in db
             $order = Order::find($validated['order_id']);
             $order->is_placed = true;
             $order->save();
 
-        // create report
+            // create report
             if (Order::where([
                 'id' => $validated['order_id'],
                 'is_placed' => true
             ])->first()) {
-
                 // retrieve orderItems of this order
                 $items = OrderItem::where([
                     'order_id' => $validated['order_id']
@@ -154,12 +169,12 @@ class OrderController extends Controller
 
                 // loop through items to store into report table;
                 foreach ($items as $item) {
-                  Report::create([
-                        'order_number' => $order->order_number,
-                        'employee' => $item->employee->name,
-                        'menu' => $item->menu->title,
-                        'amount' => $item->menu->price
-                    ]);
+                    Report::create([
+                          'order_number' => $order->order_number,
+                          'employee' => $item->employee->name,
+                          'menu' => $item->menu->title,
+                          'amount' => $item->menu->price
+                      ]);
                 }
 
         //         // send sms to restaurant and buyer
