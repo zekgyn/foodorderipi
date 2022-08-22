@@ -28,7 +28,7 @@ class Order extends Model
     }
     protected $fillable = [
         'order_number',
-        'is_placed'
+        'is_complete'
     ];
 
     public function resolveRouteBinding($value, $field = null)
@@ -67,9 +67,10 @@ class Order extends Model
             });
         }
     }
-
     public function orderItems()
     {
-        return $this->hasMany(OrderItem::class)->with(['menu:id,title,price', 'employee:id,name']);
+        // return $this->hasMany(OrderItem::class)->with(['menu:id,title,price', 'employee:id,name']);
+        // this is update relationship
+        return $this->hasMany(OrderItem::class);
     }
 }
