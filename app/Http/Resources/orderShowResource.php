@@ -17,7 +17,7 @@ class orderShowResource extends JsonResource
         return [
             'id'=>$this->id,
             'order_number' => $this->order_number,
-            'is_placed' => $this->is_placed,
+            'is_complete' => $this->is_complete,
             'created_at' => $this->created_at,
             'order_items' => orderItemsResource::collection($this->whenLoaded('orderItems')),
         ];
