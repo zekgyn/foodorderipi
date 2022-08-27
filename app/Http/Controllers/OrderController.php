@@ -76,10 +76,9 @@ class OrderController extends Controller
         // print data_get($validated, '*.qty');
         //Loop menu items and insert into the database
         foreach ($validated['items'] as $item) {
-
             $qty = data_get($item, 'menu.*.qty');
-            $price = Menu::select('price')->where('id', data_get($item, 'menu.*.menu_id'))->first();
-//amount not exact it only takes the first menu.
+            $price = Menu::select('price')->where('id', data_get($item, 'menu.*.id'))->first();
+            //amount not exact it only takes the first menu.
             $items = $order->orderItems()->create([
                 'employee_id' => $item['employee_id'],
                 'amount' => (int) $price->price * (int) $qty,
@@ -87,7 +86,7 @@ class OrderController extends Controller
 
             foreach ($item['menu'] as $i) {
                 $items->employeeItems()->create([
-                    'menu_id' => $i['menu_id'],
+                    'menu_id' => $i['id'],
                     'quantity' => $i['qty']
                 ]);
             }
