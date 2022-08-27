@@ -40,7 +40,7 @@ class StoreOrderRequest extends FormRequest
                 }
             }],
             'items.*.menu' => 'bail|required|array',
-            'items.*.menu.*.menu_id' => [
+            'items.*.menu.*.id' => [
                 'required'
             //     ,Rule::forEach(function ($attribute) {
             //     return [
