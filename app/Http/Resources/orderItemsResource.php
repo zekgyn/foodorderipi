@@ -19,7 +19,8 @@ class orderItemsResource extends JsonResource
 
         return [
             'id'=>$this->id,
-            'employee' => $this->employee->name,
+            'employee_id' => $this->employee->id,
+            'employee_name' => $this->employee->name,
             'total' => $this->amount,
             'menu_item' => employeeMenuResource::collection($this->whenLoaded('employeeItems')),
 
