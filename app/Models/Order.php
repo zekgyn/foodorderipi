@@ -41,7 +41,6 @@ class Order extends Model
     //Filter by date
     public function scopeFilterByDate($query, $startDate = null, $endDate = null)
     {
-
         //Check if start date is passed
         if ($startDate && !$endDate) {
             $startDate = date("Y-m-d", strtotime($startDate));
@@ -69,8 +68,12 @@ class Order extends Model
     }
     public function orderItems()
     {
-        // return $this->hasMany(OrderItem::class)->with(['menu:id,title,price', 'employee:id,name']);
-        // this is update relationship
         return $this->hasMany(OrderItem::class);
+
     }
+    // public function employeeItems()
+    // {
+    //     return $this->hasManyThrough(EmployeeMenuItems::class, OrderItem::class, 'order_id', 'order_item_id', 'id', 'id');
+    //     // return $this->hasMany(OrderItem::class);
+    // }
 }
