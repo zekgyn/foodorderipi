@@ -115,18 +115,27 @@ class OrderController extends Controller
         if (!$order->is_placed == true) {
             $order = DB::transaction(function () use ($validated, $order) {
                 // Add order items
-                if (!empty($validated['add_item'])) {
-                    foreach ($validated['add_item'] as $data) {
-                        $order->orderItems()->create([
-                            'menu_id' => $data['menu_id'],
+                if (!empty($validated['add_items'])) {
+                    foreach ($validated['add_items'] as $data) {
+                        $qty = data_get($data, 'menu.*.qty');
+                        $price = Menu::select('price')->where('id', data_get($data, 'menu.*.id'))->first();
+
+                        $items = $order->orderItems()->create([
                             'employee_id' => $data['employee_id'],
+                            'amount' => (int) $price->price * (int) $qty,
                         ]);
+                        foreach ($data['menu'] as $i) {
+                            $items->employeeItems()->create([
+                                'menu_id' => $i['id'],
+                                'quantity' => $i['qty']
+                            ]);
+                        }
                     }
                 }
                 // Delete order items
-                if (!empty($validated['delete_item'])) {
-                    foreach ($validated['delete_item'] as $id) {
-                        OrderItem::where('id', $id)->delete();
+                if (!empty($validated['delete_items'])) {
+                    foreach ($validated['delete_items'] as $id) {
+                        $order->orderItems()->where('id', $id)->delete();
                     }
                 }
             });

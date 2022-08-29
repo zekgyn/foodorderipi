@@ -27,25 +27,31 @@ class UpdateOrderRequest extends FormRequest
     public function rules()
     {
         return [
-            'add_item' => 'array',
-            'add_item.*.menu_id' => ['required', 'string',  function ($attribute, $value, $fail) {
-                if (!Menu::where([
+            'add_items' => 'array',
+            'add_items.*.employee_id' => ['required', 'string',  function ($attribute, $value, $fail) {
+                if (!Employee::where([
                     ['id', '=', $value]
                 ])->exists()) {
                     return $fail("{$attribute} does not exist in the menu");
                 }
             }],
-             'add_item.*.employee_id' => [
-                'bail','required','string',
-                function ($attribute, $value, $fail) {
-                    if (!Employee::where([
+            'add_items.*.menu' => 'bail|required|array',
+            'add_items.*.menu.*.id' => [
+                'bail','required'
+                , function ($attribute, $value, $fail) {
+                    if (!Menu::where([
                         ['id', '=', $value]
+                    ])->exists() || !Menu::where([
+                        ['id', '=', $value],
+                        ['is_active', '=', true]
                     ])->exists()) {
-                      return $fail("{$attribute} does not exist");
-                 }
-            }],
-            'delete_item' => 'present|nullable|array',
-            'delete_item.*' => 'required|distinct|exists:order_items,id'
+                        return $fail("{$attribute} does not exist in the menu");
+                    }
+                }
+            ],
+            'add_items.*.menu.*.qty' => 'bail|required|numeric|min:1',
+            'delete_items' => 'present|nullable|array',
+            'delete_items.*' => 'required|distinct|exists:order_items,id'
         ];
     }
 }
