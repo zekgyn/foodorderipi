@@ -15,9 +15,10 @@ class employeeMenuResource extends JsonResource
      */
     public function toArray($request)
     {
-        $menu = Menu::select('price','title')->where('id', $this->menu_id)->first();
+        $menu = Menu::select('price', 'title')->where('id', $this->menu_id)->first();
         return [
-            'id' =>$this->id,
+            'id' => $this->id,
+            'menu_id' => $this->menu_id,
             'title' => $menu->title,
             'price' => $menu->price,
             'qty' => $this->quantity,
