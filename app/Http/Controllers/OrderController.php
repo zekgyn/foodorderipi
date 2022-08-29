@@ -39,10 +39,9 @@ class OrderController extends Controller
      * @param  \App\Models\Order  $order
      * @return \Illuminate\Http\Response
      */
-    public function employeeOrders(Order $order)
+    public function show(Order $order)
     {
-        $order->loadMissing(['orderItems']);
-
+        $order->loadMissing('orderItems.employeeItems');
         return (new orderShowResource($order))->response();
     }
 
@@ -52,7 +51,7 @@ class OrderController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function show($order)
+    public function employeeOrders($order)
     {
         $items = OrderItem::where('order_id', $order)->orderby('created_at', 'desc')->paginate(15);
         $items->loadMissing(['employeeItems']);
