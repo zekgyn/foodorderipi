@@ -22,7 +22,7 @@ class orderItemsResource extends JsonResource
             'employee_id' => $this->employee->id,
             'employee_name' => $this->employee->name,
             'total' => $this->amount,
-            'menu_item' => employeeMenuResource::collection($this->whenLoaded('employeeItems')),
+            'menu_items' => employeeMenuResource::collection($this->whenLoaded('employeeItems')),
 
         ];
     }
