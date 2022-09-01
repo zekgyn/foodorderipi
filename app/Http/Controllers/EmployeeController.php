@@ -63,7 +63,7 @@ class EmployeeController extends Controller
                 function ($attribute, $value, $fail) use ($employee) {
                     if (Employee::where([
                         ['id', '!=', $employee->id],
-                        ['phone', '=', strtolower($value)]
+                        ['phone', '=', $value]
                     ])->exists()) {
                         return $fail("{$attribute} number already exists");
                     }
