@@ -52,29 +52,29 @@ class MenuSeeder extends Seeder
         foreach ($images as $image) {
             Menu::create([
                 'title' => $this->faker->unique()->randomElement([
-                    'Mixer Nyama full',
-                    'Mixer Samaki full',
-                    'Wali Samaki full',
-                    'Ugali Samaki full',
-                    'Wali nyama full',
+                    'mixer nyama full',
+                    'mixer samaki full',
+                    'wali samaki full',
+                    'ugali samaki full',
+                    'wali nyama full',
                     'wali mbogamboga full',
                     'ugali nyama full',
                     'ugali mbogamboga full',
-                    'Ndizi Samaki full',
-                    'Ndizi Samaki full',
-                    'Mixer kuku full',
+                    'ndizi samaki full',
+                    'ndizi samaki full',
+                    'mixer kuku full',
                     'ugali kuku full',
                     'wali kuku full',
                     'ndizi kuku full',
-                    'chapati Samaki full',
+                    'chapati samaki full',
                     'chapati kuku full',
                     'chapati nyama full',
-                    'Biryan nyama full',
-                    'Biryan kuku full'
+                    'biryan nyama full',
+                    'biryan kuku full'
 
                 ]),
                 'price' => $this->faker->randomElement([1000, 1500, 2000, 2500, 3000, 3500, 4000.4500]),
-               
+
             ]);
         }
     }
