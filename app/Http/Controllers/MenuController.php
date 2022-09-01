@@ -19,13 +19,13 @@ class MenuController extends Controller
      */
     public function index()
     {
-        $menu = Menu::select('id', 'title', 'price', 'is_active')->orderby('created_at', 'desc')->paginate(15);
+        $menu = Menu::select('id', 'title', 'price', 'is_active')->orderby('created_at', 'desc')->search(request('search'))->paginate(15);
 
         return menuResource::collection($menu);
     }
     public function indexall()
     {
-        $menu = Menu::where('is_active', true)->select('id', 'title', 'price')->orderby('created_at', 'desc')->get();
+        $menu = Menu::where('is_active', true)->select('id', 'title', 'price')->orderby('created_at', 'desc')->search(request('search'))->get();
 
         return response()->json(['data' => $menu]);
 
