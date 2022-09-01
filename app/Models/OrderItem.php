@@ -70,6 +70,14 @@ class OrderItem extends Model
         }
     }
 
+    public function scopeSearch($query, $term)
+    {
+        if ($term !== null) {
+            $term = strtoupper($term . '%');
+            $query->where('order_items.employee', 'like', $term);
+        }
+    }
+
     public function order()
     {
         return $this->belongsTo(Order::class);
