@@ -45,6 +45,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get('show_order/{order}', [OrderController::class, 'show']);
     Route::post('create_order', [OrderController::class, 'store']);
     Route::put('update_order/{order}', [OrderController::class, 'update']);
+    Route::put('update_item/{item}', [OrderController::class, 'updateItem']);
 
     // get employee items for order
     Route::get('get_employee_orders/{order}', [OrderController::class, 'employeeOrders']);
@@ -56,7 +57,9 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::post('send_order', [OrderController::class, 'send']);
 
     //reports
-    Route::get('report', [ReportController::class, 'index']);
+    Route::get('order_report', [ReportController::class, 'index']);
+    Route::get('items_report', [ReportController::class, 'itemsReport']);
+
 
 });
 
