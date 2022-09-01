@@ -18,13 +18,13 @@ class EmployeeController extends Controller
      */
     public function index()
     {
-        $employee = Employee::select('id', 'name', 'phone','is_active')->orderby('created_at', 'desc')->paginate(15);
+        $employee = Employee::select('id', 'name', 'phone', 'is_active')->search(request('search'))->orderby('created_at', 'desc')->paginate(15);
 
         return employeeResource::collection($employee);
     }
     public function indexall()
     {
-        $employee = Employee::select('id','name', 'phone')->where('is_active', true)->orderby('created_at', 'desc')->get();
+        $employee = Employee::select('id', 'name', 'phone')->where('is_active', true)->search(request('search'))->orderby('created_at', 'desc')->get();
 
         return response()->json(['data' => $employee]);
     }
@@ -47,8 +47,6 @@ class EmployeeController extends Controller
         return response()->json([
             'response' => 'Employee  has been created successfully'
         ]);
-
-
     }
     /**
      * Update the specified resource in storage.
@@ -107,6 +105,5 @@ class EmployeeController extends Controller
 
         $employee->save();
         return response()->json(['message' => 'Employee Status updated']);
-
     }
 }
