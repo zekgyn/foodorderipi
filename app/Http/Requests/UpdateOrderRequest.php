@@ -32,7 +32,7 @@ class UpdateOrderRequest extends FormRequest
                 if (!Employee::where([
                     ['id', '=', $value]
                 ])->exists()) {
-                    return $fail("{$attribute} does not exist in the menu");
+                    return $fail("{$attribute} does not exist");
                 }
             }],
             'add_items.*.menu' => 'bail|required|array',
@@ -45,7 +45,7 @@ class UpdateOrderRequest extends FormRequest
                         ['id', '=', $value],
                         ['is_active', '=', true]
                     ])->exists()) {
-                        return $fail("{$attribute} does not exist in the menu");
+                        return $fail("{$attribute} does not exist");
                     }
                 }
             ],
