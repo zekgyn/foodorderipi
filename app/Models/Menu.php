@@ -37,4 +37,11 @@ class Menu extends Model
         }
         return $this->where("id", $value)->firstOrFail();
     }
+    public function scopeSearch($query, $term)
+    {
+        if ($term !== null) {
+            $term = strtolower('%' . $term . '%');
+            $query->where('menus.title', 'like', $term);
+        }
+    }
 }
