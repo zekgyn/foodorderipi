@@ -17,7 +17,7 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->foreignUuid('order_id')->constrained('orders')->cascadeOnDelete();
             $table->foreignUuid('employee_id')->constrained('employees')->nullOnDelete();
-            $table->integer('amount')->nullable();
+            $table->integer('amount')->default(0);
             $table->timestamps();
         });
     }
