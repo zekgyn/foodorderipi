@@ -28,7 +28,8 @@ class Order extends Model
     }
     protected $fillable = [
         'order_number',
-        'is_complete'
+        'is_complete',
+        'total'
     ];
 
     public function resolveRouteBinding($value, $field = null)
@@ -64,6 +65,13 @@ class Order extends Model
                     ->orWhereDate('created_at', $startDate)
                     ->orWhereDate('created_at', $endDate);
             });
+        }
+    }
+    public function scopeSearch($query, $term)
+    {
+        if ($term !== null) {
+            $term = strtoupper($term . '%');
+            $query->where('orders.order_number', 'like', $term);
         }
     }
     public function orderItems()
