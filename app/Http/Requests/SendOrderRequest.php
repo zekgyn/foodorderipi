@@ -26,13 +26,12 @@ class SendOrderRequest extends FormRequest
     {
         return [
             'order_id' => ['required', function ($attribute, $value, $fail) {
-                if (!Order::where('id',  $value)
-                ->exists())
-                 {
+                if (!Order::where('id', $value)
+                ->exists()) {
                     return $fail("{$attribute} does not exist");
                 } elseif (Order::where([
                     ['id', '=', $value],
-                    ['is_placed', '=', true]
+                    ['is_complete', '=', true]
                     ])->exists()) {
                     return $fail("{$attribute} has already been sent");
                 }
