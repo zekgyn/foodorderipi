@@ -38,7 +38,13 @@ class Employee extends Model
         }
         return $this->where("id", $value)->firstOrFail();
     }
-
+public function scopeSearch($query, $term)
+{
+    if ($term !== null) {
+        $term = strtolower('%' .$term. '%');
+        $query->where('employees.name', 'like', $term);
+    }
+}
     // public function orderItem()
     // {
     //     return $this->belongsTo(OrderItem::class);
