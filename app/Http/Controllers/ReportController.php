@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\orderItemsResource;
 use App\Models\Order;
 use App\Models\Report;
 use Illuminate\Http\Request;
@@ -50,14 +51,17 @@ class ReportController extends Controller
         ]);
 
         if (OrderItem::filterByDate($validated['start_date'], $validated['end_date'])
-        ->orderBy('created_at')->exists()) {
-            $order = Order::where('is_complete', true)
+            ->orderBy('created_at')->exists()
+        ) {
+            $order = OrderItem::whereHas('order', function ($query) {
+                return $query->where('is_complete', true);
+            })
                 ->filterByDate($validated['start_date'], $validated['end_date'])
                 ->search(request('search'))
                 ->orderBy('created_at')
-                ->paginate(15);
-
-            return  orderShowResource::collection($order);
+                ->paginate(15)->loadMissing(['employeeItems']);
+            // return $order;
+            return  orderItemsResource::collection($order);
         } else {
             return response()->json(['message' => 'No data matching your criteria'], 200);
         }
