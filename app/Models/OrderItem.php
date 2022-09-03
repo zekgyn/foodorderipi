@@ -74,7 +74,7 @@ class OrderItem extends Model
     {
         if ($term !== null) {
             $term = strtoupper($term . '%');
-            $query->where('order_items.employee', 'like', $term);
+            $query->where('report_items.name', 'like', $term);
         }
     }
 
