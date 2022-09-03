@@ -31,8 +31,8 @@ class OrderController extends Controller
     public function index()
     {
         $orders = Order::orderby('created_at', 'desc')
-        ->search(request('search'))
-        ->paginate(15);
+            ->search(request('search'))
+            ->paginate(15);
 
         return orderShowResource::collection($orders);
     }
@@ -126,9 +126,9 @@ class OrderController extends Controller
         $validated = $request->validated();
         if (!$order->is_complete == true) {
             $order = DB::transaction(function () use ($validated, $order) {
-                // Add order items
+                // // Add order items
                 if (!empty($validated['add_items'])) {
-                    // new sum of all items for order
+                    //     // new sum of all items for order
                     $total = $order->total;
                     foreach ($validated['add_items'] as $item) {
                         foreach ($item['menu'] as $i) {
@@ -137,11 +137,11 @@ class OrderController extends Controller
                             $total += $subTotal;
                         }
                     }
-                    // update order price
+                    //     // update order price
                     $order->update([
                         'total' => $total
                     ]);
-                    // add new items
+                    //     // add new items
                     foreach ($validated['add_items'] as $data) {
                         $total = 0;
                         foreach ($data['menu'] as $i) {
@@ -167,7 +167,7 @@ class OrderController extends Controller
                     $total = $order->total;
                     // new sum of all items for order
                     foreach ($validated['delete_items'] as $id) {
-                        $item = $order->orderItems()->select('amount')->where('id', $id);
+                        $item = $order->orderItems()->select('amount')->where('id', $id)->first();
                         $total -= $item->amount;
                         $order->update([
                             'total' => $total
@@ -281,32 +281,32 @@ class OrderController extends Controller
             $order->save();
 
             // create report
-        //     if (Order::where([
-        //         'id' => $validated['order_id'],
-        //         'is_complete' => true
-        //     ])->first()) {
-        //         // retrieve orderItems of this order
-        //         $items = OrderItem::where([
-        //             'order_id' => $validated['order_id']
-        //         ])->with(['menu', 'employee'])->get();
+            //     if (Order::where([
+            //         'id' => $validated['order_id'],
+            //         'is_complete' => true
+            //     ])->first()) {
+            //         // retrieve orderItems of this order
+            //         $items = OrderItem::where([
+            //             'order_id' => $validated['order_id']
+            //         ])->with(['menu', 'employee'])->get();
 
-        //         // loop through items to store into report table;
-        //         foreach ($items as $item) {
-        //             Report::create([
-        //                 'order_number' => $order->order_number,
-        //                 'employee' => $item->employee->name,
-        //                 'menu' => $item->menu->title,
-        //                 'amount' => $item->menu->price
-        //             ]);
-        //         }
+            //         // loop through items to store into report table;
+            //         foreach ($items as $item) {
+            //             Report::create([
+            //                 'order_number' => $order->order_number,
+            //                 'employee' => $item->employee->name,
+            //                 'menu' => $item->menu->title,
+            //                 'amount' => $item->menu->price
+            //             ]);
+            //         }
 
-        //         //         // send sms to restaurant and buyer
-        //         //         // $textrestaurant = "Order# {$order['order_number']}";
-        //         //         // return response()->json(["order" => $textrestaurant]);
+            //         //         // send sms to restaurant and buyer
+            //         //         // $textrestaurant = "Order# {$order['order_number']}";
+            //         //         // return response()->json(["order" => $textrestaurant]);
 
-        //         //         // SendSms::dispatch($textrestaurant, 255620170041);
-        //         //         // return response()->json(["order" => $textrestaurant]);
-        //     }
+            //         //         // SendSms::dispatch($textrestaurant, 255620170041);
+            //         //         // return response()->json(["order" => $textrestaurant]);
+            //     }
         });
 
 
