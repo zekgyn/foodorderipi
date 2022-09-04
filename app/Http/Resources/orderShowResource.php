@@ -18,7 +18,7 @@ class orderShowResource extends JsonResource
             'id'=>$this->id,
             'order_number' => $this->order_number,
             'is_complete' => $this->is_complete,
-            'total'=> $this->total,
+            'total'=> (double) $this->total,
             'created_at' => $this->created_at,
             'order_items' => orderItemsResource::collection($this->whenLoaded('orderItems')),
         ];
