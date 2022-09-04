@@ -20,7 +20,7 @@ class employeeMenuResource extends JsonResource
             'id' => $this->id,
             'menu_id' => $this->menu_id,
             'title' => $menu->title,
-            'price' => $menu->price,
+            'price' => (double) $menu->price,
             'qty' => $this->quantity,
 
         ];
