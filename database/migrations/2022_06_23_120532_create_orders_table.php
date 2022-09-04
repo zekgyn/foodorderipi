@@ -18,7 +18,7 @@ return new class extends Migration {
             $table->uuid('id')->primary();
             $table->string('order_number')->unique();
             $table->boolean('is_complete')->default(false);
-            $table->integer('total')->default(0);
+            $table->unsignedDecimal('total')->default(0.00);
             $table->timestamps();
         });
     }
