@@ -29,7 +29,7 @@ class OrderItem extends Model
 
     protected $fillable = [
         'employee_id',
-        'amount'
+        'subtotal'
     ];
 
     public function resolveRouteBinding($value, $field = null)
