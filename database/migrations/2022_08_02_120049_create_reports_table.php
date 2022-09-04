@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('order_number');
             $table->string('menu');
             $table->string('employee');
-            $table->string('amount');
+            $table->unsignedDecimal('total')->default(0.00);
             $table->timestamps();
         });
     }
