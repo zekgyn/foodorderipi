@@ -56,13 +56,13 @@ class ReportController extends Controller
             ->orderBy('created_at')->exists()
         ) {
             $report = Report::whereHas('order', function ($query) {
-                return $query->where('is_complete', false);
+                return $query->where('is_complete', true);
             })->filterByDate($validated['start_date'], $validated['end_date'])
                 ->search(request('search'))
-                ->orderBy('created_at')
-                ->paginate(15)->loadMissing(['reportItems']);
+                ->orderBy('created_at')->get()->loadMissing(['reportItems'])
+            ;
             // return $order;
-            return  $report;
+            return  reportsResource::collection($report);
         } else {
             return response()->json(['message' => 'No data matching your criteria'], 200);
         }
