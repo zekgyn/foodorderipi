@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use App\Models\Order;
 use Illuminate\Support\Str;
+use App\Models\EmployeeMenuReport;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -23,12 +25,10 @@ class Report extends Model
             $model->id = (string) Str::uuid(); //generate uuid
         });
     }
-    
+
     protected $fillable = [
-        'order_number',
-        'menu',
         'employee',
-        'amount'
+        'subtotal'
     ];
 
     public function resolveRouteBinding($value, $field = null)
@@ -67,5 +67,21 @@ class Report extends Model
                     ->orWhereDate('created_at', $endDate);
             });
         }
+    }
+    // search by employee name
+    public function scopeSearch($query, $term)
+    {
+        if ($term !== null) {
+            $term = strtolower('%'. $term . '%');
+            $query->where('reports.employee', 'like', $term);
+        }
+    }
+    public function order()
+    {
+        return $this->belongsTo(Order::class);
+    }
+    public function reportItems()
+    {
+        return $this->hasMany(EmployeeMenuReport::class);
     }
 }
