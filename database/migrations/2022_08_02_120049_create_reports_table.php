@@ -15,10 +15,9 @@ return new class extends Migration
     {
         Schema::create('reports', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('order_number');
-            $table->string('menu');
+            $table->foreignUuid('order_id')->constrained('orders')->cascadeOnDelete();
             $table->string('employee');
-            $table->unsignedDecimal('total')->default(0.00);
+            $table->unsignedDecimal('subtotal')->default(0.00);
             $table->timestamps();
         });
     }
