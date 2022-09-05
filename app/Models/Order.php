@@ -79,6 +79,10 @@ class Order extends Model
         return $this->hasMany(OrderItem::class);
 
     }
+    public function report()
+    {
+        return $this->hasMany(Report::class);
+    }
     // public function employeeItems()
     // {
     //     return $this->hasManyThrough(EmployeeMenuItems::class, OrderItem::class, 'order_id', 'order_item_id', 'id', 'id');
