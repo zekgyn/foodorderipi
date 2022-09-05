@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use App\Http\Resources\reportsResource;
 use App\Http\Resources\orderShowResource;
 use App\Models\OrderItem;
+use PhpOffice\PhpSpreadsheet\Calculation\TextData\Search;
 
 class ReportController extends Controller
 {
@@ -47,21 +48,21 @@ class ReportController extends Controller
     {
         $validated = request()->validate([
             'start_date' => 'required|date_format:Y-m-d',
-            'end_date' => 'required|date_format:Y-m-d|after_or_equal:start_date'
+            'end_date' => 'required|date_format:Y-m-d|after_or_equal:start_date',
+            'search' => 'string'
         ]);
 
-        if (OrderItem::filterByDate($validated['start_date'], $validated['end_date'])
+        if (Report::filterByDate($validated['start_date'], $validated['end_date'])
             ->orderBy('created_at')->exists()
         ) {
-            $order = OrderItem::whereHas('order', function ($query) {
-                return $query->where('is_complete', true);
-            })
-                ->filterByDate($validated['start_date'], $validated['end_date'])
+            $report = Report::whereHas('order', function ($query) {
+                return $query->where('is_complete', false);
+            })->filterByDate($validated['start_date'], $validated['end_date'])
                 ->search(request('search'))
                 ->orderBy('created_at')
-                ->paginate(15)->loadMissing(['employeeItems']);
+                ->paginate(15)->loadMissing(['reportItems']);
             // return $order;
-            return  orderItemsResource::collection($order);
+            return  $report;
         } else {
             return response()->json(['message' => 'No data matching your criteria'], 200);
         }
