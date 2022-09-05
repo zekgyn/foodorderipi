@@ -15,13 +15,11 @@ class reportsResource extends JsonResource
     public function toArray($request)
     {
         return [
-            "id" => $this->id,
-            'order' => $this->order_number,
+            'id' => $this->id,
             'employee'=> $this->employee,
-            'menu' => $this->menu,
-            'amount' => $this->amount,
+            'subtotal' => $this->subtotal,
             'date' => $this->created_at,
-
+            'items' => reportItemsResource::collection($this->whenLoaded('reportItems')),
         ];
     }
 }
