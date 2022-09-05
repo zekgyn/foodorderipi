@@ -19,6 +19,7 @@ use App\Http\Requests\UpdateOrderRequest;
 use App\Http\Resources\orderShowResource;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Resources\orderItemsResource;
+use App\Models\Employee;
 use App\Models\EmployeeMenuItems;
 
 class OrderController extends Controller
@@ -220,51 +221,51 @@ class OrderController extends Controller
             'is_complete' => false
         ])->exists()) {
             DB::transaction(function () use ($validated, $item) {
-            // Add employee items
-            if (!empty($validated['add_menu'])) {
-                $order = $item->order()->where('id', $item->order_id)->first();
-                $orderTotal= $order->total;
-                $itemTotal = $item->subtotal;
-                foreach ($validated['add_menu'] as $i) {
-                    $price = Menu::select('price')->where('id', $i['id'])->first();
-                    $subTotal = $price->price * $i['qty'];
-                    $itemTotal += $subTotal;
-                    $orderTotal += $subTotal;
-                }
-                $item->update([
-                    'subtotal' => $itemTotal,
-                ]);
-                $order->update([
-                    'total' => $orderTotal
-                ]);
-
-                foreach ($validated['add_menu'] as $i) {
-                    $item->employeeItems()->create([
-                        'menu_id' => $i['id'],
-                        'quantity' => $i['qty']
-                    ]);
-                }
-            }
-            // Delete employee items
-            if (!empty($validated['delete_menu'])) {
-                $order = $item->order()->where('id', $item->order_id)->first();
-                $orderTotal = $order->total;
-                $itemTotal = $item->subtotal;
-                foreach ($validated['delete_menu'] as $id) {
-
-                    $orderItem = $item->employeeItems()->where('id', $id)->first();
-                    $price = Menu::select('price')->where('id', $orderItem->menu_id)->first();
-                    $itemTotal -= $price->price;
-                    $orderTotal -= $price->price;
+                // Add employee items
+                if (!empty($validated['add_menu'])) {
+                    $order = $item->order()->where('id', $item->order_id)->first();
+                    $orderTotal = $order->total;
+                    $itemTotal = $item->subtotal;
+                    foreach ($validated['add_menu'] as $i) {
+                        $price = Menu::select('price')->where('id', $i['id'])->first();
+                        $subTotal = $price->price * $i['qty'];
+                        $itemTotal += $subTotal;
+                        $orderTotal += $subTotal;
+                    }
                     $item->update([
                         'subtotal' => $itemTotal,
                     ]);
                     $order->update([
                         'total' => $orderTotal
                     ]);
-                    $orderItem->where('id', $id)->delete();
+
+                    foreach ($validated['add_menu'] as $i) {
+                        $item->employeeItems()->create([
+                            'menu_id' => $i['id'],
+                            'quantity' => $i['qty']
+                        ]);
+                    }
                 }
-            }
+                // Delete employee items
+                if (!empty($validated['delete_menu'])) {
+                    $order = $item->order()->where('id', $item->order_id)->first();
+                    $orderTotal = $order->total;
+                    $itemTotal = $item->subtotal;
+                    foreach ($validated['delete_menu'] as $id) {
+
+                        $orderItem = $item->employeeItems()->where('id', $id)->first();
+                        $price = Menu::select('price')->where('id', $orderItem->menu_id)->first();
+                        $itemTotal -= $price->price;
+                        $orderTotal -= $price->price;
+                        $item->update([
+                            'subtotal' => $itemTotal,
+                        ]);
+                        $order->update([
+                            'total' => $orderTotal
+                        ]);
+                        $orderItem->where('id', $id)->delete();
+                    }
+                }
             });
             // return response to client
             return response()->json([
@@ -291,37 +292,36 @@ class OrderController extends Controller
             $order->save();
 
             // create report
-            //     if (Order::where([
-            //         'id' => $validated['order_id'],
-            //         'is_complete' => true
-            //     ])->first()) {
-            //         // retrieve orderItems of this order
-            //         $items = OrderItem::where([
-            //             'order_id' => $validated['order_id']
-            //         ])->with(['menu', 'employee'])->get();
+            if ($order->is_complete = true) {
+                // retrieve orderItems of this order
+                $items = $order->orderItems()->get();
 
-            //         // loop through items to store into report table;
-            //         foreach ($items as $item) {
-            //             Report::create([
-            //                 'order_number' => $order->order_number,
-            //                 'employee' => $item->employee->name,
-            //                 'menu' => $item->menu->title,
-            //                 'amount' => $item->menu->price
-            //             ]);
-            //         }
+                // loop through items to store into report tables;
+                foreach ($items as $item) {
+                    $employee = Employee::where("id", $item->employee_id)->first();
+                    $report = $order->report()->create([
+                        'employee' => strtolower($employee->name),
+                        'subtotal' => $item->subtotal
+                    ]);
+                    $employeeItems = $item->employeeItems()->where('order_item_id', $item->id)->get();
 
-            //         //         // send sms to restaurant and buyer
-            //         //         // $textrestaurant = "Order# {$order['order_number']}";
-            //         //         // return response()->json(["order" => $textrestaurant]);
-
-            //         //         // SendSms::dispatch($textrestaurant, 255620170041);
-            //         //         // return response()->json(["order" => $textrestaurant]);
-            //     }
+                    // loop through items to store into report table;
+                    foreach ($employeeItems as $employeeItem) {
+                        $menu = Menu::where("id", $employeeItem->menu_id)->first();
+                        $report->reportItems()->create([
+                            'menu' => strtolower($menu->title),
+                            'price' => $menu->price,
+                            'quantity' => $employeeItem->quantity
+                        ]);
+                    }
+                }
+                // send sms to restaurant and buyer
+                // $textrestaurant = "Order# {$order['order_number']}";
+                // return response()->json(["order" => $textrestaurant]);
+                // SendSms::dispatch($textrestaurant, 255620170041);
+                // return response()->json(["order" => $textrestaurant]);
+            }
         });
-
-
-
-        // send sms/email to restaurant
         // return response to client
         return response()->json([
             'response' => ['message' => 'Order sent successfully']
