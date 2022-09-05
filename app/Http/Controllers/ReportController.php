@@ -49,7 +49,6 @@ class ReportController extends Controller
         $validated = request()->validate([
             'start_date' => 'required|date_format:Y-m-d',
             'end_date' => 'required|date_format:Y-m-d|after_or_equal:start_date',
-            'search' => 'string'
         ]);
 
         if (Report::filterByDate($validated['start_date'], $validated['end_date'])
