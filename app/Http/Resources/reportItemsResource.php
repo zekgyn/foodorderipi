@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Order;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class reportItemsResource extends JsonResource
@@ -14,11 +15,15 @@ class reportItemsResource extends JsonResource
      */
     public function toArray($request)
     {
-        return [
+        $order_number = Order::find($this->order_id);
+        return
+        [
             'id' => $this->id,
-            'menu' => $this->menu,
-            'price' => $this->price,
-            'quantity' => $this->quantity,
+            'order_number' => $order_number->order_number,
+            'employee' => $this->employee,
+            'total' => $this->subtotal,
+            'date' => date("Y-m-d", strtotime($this->created_at)),
+            'items' => menuItemReportResource::collection($this->whenLoaded('reportItems')),
         ];
     }
 }

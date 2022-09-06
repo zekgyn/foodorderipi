@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Resources\orderItemsResource;
 use App\Models\Order;
 use App\Models\Report;
+use App\Models\OrderItem;
 use Illuminate\Http\Request;
 use App\Http\Resources\reportsResource;
 use App\Http\Resources\orderShowResource;
-use App\Models\OrderItem;
+use App\Http\Resources\orderItemsResource;
+use App\Http\Resources\reportItemsResource;
 use PhpOffice\PhpSpreadsheet\Calculation\TextData\Search;
 
 class ReportController extends Controller
@@ -34,7 +35,7 @@ class ReportController extends Controller
                 ->orderBy('created_at')
                 ->paginate(15);
 
-            return  orderShowResource::collection($order);
+            return  reportsResource::collection($order);
         } else {
             return response()->json(['message' => 'No data matching your criteria'], 200);
         }
@@ -58,10 +59,9 @@ class ReportController extends Controller
                 return $query->where('is_complete', true);
             })->filterByDate($validated['start_date'], $validated['end_date'])
                 ->search(request('search'))
-                ->orderBy('created_at')->get()->loadMissing(['reportItems'])
-            ;
+                ->orderBy('created_at')->get()->loadMissing(['reportItems']);
             // return $order;
-            return  reportsResource::collection($report);
+            return  reportItemsResource::collection($report);
         } else {
             return response()->json(['message' => 'No data matching your criteria'], 200);
         }
