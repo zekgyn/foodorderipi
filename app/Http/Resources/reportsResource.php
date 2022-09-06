@@ -17,7 +17,7 @@ class reportsResource extends JsonResource
         return [
             'id' => $this->id,
             'employee'=> $this->employee,
-            'subtotal' => $this->subtotal,
+            'total' => $this->subtotal,
             'date' => $this->created_at,
             'items' => reportItemsResource::collection($this->whenLoaded('reportItems')),
         ];
