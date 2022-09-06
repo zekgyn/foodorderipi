@@ -21,7 +21,7 @@ class reportItemsResource extends JsonResource
             'id' => $this->id,
             'order_number' => $order_number->order_number,
             'employee' => $this->employee,
-            'total' => $this->subtotal,
+            'total' => (double) $this->subtotal,
             'date' => date("Y-m-d", strtotime($this->created_at)),
             'items' => menuItemReportResource::collection($this->whenLoaded('reportItems')),
         ];

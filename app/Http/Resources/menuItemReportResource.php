@@ -18,7 +18,7 @@ class menuItemReportResource extends JsonResource
             [
                 'id' => $this->id,
                 'menu' => $this->menu,
-                'price' => $this->price,
+                'price' => (double) $this->price,
                 'quantity' => $this->quantity,
             ];
     }
