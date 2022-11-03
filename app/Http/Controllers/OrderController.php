@@ -71,44 +71,58 @@ class OrderController extends Controller
     public function store(StoreOrderRequest $request)
     {
         $validated = $request->validated();
-
-        DB::transaction(function () use ($validated) {
-            // sum of all items for order
-            $total = 0;
-            foreach ($validated['items'] as $item) {
-                foreach ($item['menu'] as $i) {
-                    $price = Menu::select('price')->where('id', $i['id'])->first();
-                    $subTotal = $price->price * $i['qty'];
-                    $total += $subTotal;
-                }
-            }
-            // create order
-            $order = Order::create([
-                'is_complete' => false,
-                'total' => $total
+        // check if order for today exists
+        if (Order::where([
+            ['created_at', 'like', date("Y-m-d", strtotime(today())) . '%']
+        ])->exists()) {
+            return response()->json([
+                'response' => ['not allowed' => 'Multiple orders in the same day are not allowed']
             ]);
-            //Loop menu items and insert into the database
-            foreach ($validated['items'] as $item) {
-                $itemTotal = 0;
-                foreach ($item['menu'] as $i) {
-                    $price = Menu::select('price')->where('id', $i['id'])->first();
-                    $itemSubTotal = $price->price * $i['qty'];
-                    $itemTotal += $itemSubTotal;
+        } else {
+            DB::transaction(function () use ($validated) {
+                // sum of all items for order
+                $total = 0;
+                foreach ($validated['items'] as $item) {
+                    foreach ($item['menu'] as $i) {
+                        $price = Menu::select('price')->where('id', $i['id'])->first();
+                        $subTotal = $price->price * $i['qty'];
+                        $total += $subTotal;
+                    }
                 }
 
-                $items = $order->orderItems()->create([
-                    'employee_id' => $item['employee_id'],
-                    'subtotal' =>  $itemTotal,
+                // create order
+                //Order time limit
+                // $otl = 24;
+
+                // $expire_time = date("Y-m-d H:i:s", strtotime('+' . $otl . ' hours'));
+                $order = Order::create([
+                    'is_complete' => false,
+                    'total' => $total
+                    // 'expire_time'=> $expire_time
                 ]);
+                //Loop menu items and insert into the database
+                foreach ($validated['items'] as $item) {
+                    $itemTotal = 0;
+                    foreach ($item['menu'] as $i) {
+                        $price = Menu::select('price')->where('id', $i['id'])->first();
+                        $itemSubTotal = $price->price * $i['qty'];
+                        $itemTotal += $itemSubTotal;
+                    }
 
-                foreach ($item['menu'] as $menu) {
-                    $items->employeeItems()->create([
-                        'menu_id' => $menu['id'],
-                        'quantity' => $menu['qty']
+                    $items = $order->orderItems()->create([
+                        'employee_id' => $item['employee_id'],
+                        'subtotal' =>  $itemTotal,
                     ]);
+
+                    foreach ($item['menu'] as $menu) {
+                        $items->employeeItems()->create([
+                            'menu_id' => $menu['id'],
+                            'quantity' => $menu['qty']
+                        ]);
+                    }
                 }
-            }
-        });
+            });
+        }
         // return response to client
         return response()->json([
             'response' => ['order' => 'Order created successfully']
